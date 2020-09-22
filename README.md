@@ -2,7 +2,7 @@
 
 ## About
 
-The Qualys Policy Compliance Scanning Connector empowers to automate the PC scanning of host or cloud instance from Jenkins. By integrating scans in this manner, Host or cloud instance security testing is accomplished to discover and eliminate policy compliance related flaws.
+The Qualys Policy Compliance Scanning Connector empowers the DevOps to automate the PC scanning of host or cloud instance from Jenkins. By integrating scans in this manner, Host or cloud instance security testing is accomplished to discover and eliminate policy compliance related flaws.
 
 ## How to use this plugin
 
