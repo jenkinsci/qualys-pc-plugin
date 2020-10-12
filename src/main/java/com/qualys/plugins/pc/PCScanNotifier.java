@@ -794,11 +794,11 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 			try {
 				if (failByStateAndCriticality) {
 					if (stateFail == false && stateError == false && stateExceptions == false) {
-						return FormValidation.error("Select at list one state");
+						return FormValidation.error("Select at least one state");
 					}
 					if (criticalitySerious == false && criticalityUrgent == false && criticalityCritical == false
 							&& criticalityMedium == false && criticalityMinimal == false) {
-						return FormValidation.error("Select at list one criticality");
+						return FormValidation.error("Select at least one criticality");
 					}
 				}
 				return FormValidation.ok();
