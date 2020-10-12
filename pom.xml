@@ -121,6 +121,14 @@
 			<version>3.6.1</version>
 		</dependency>
 	</dependencies>
+	
+	<scm>
+	    <connection>scm:git:ssh://github.com/jenkinsci/qualys-pc-plugin.git</connection>
+	    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/qualys-pc-plugin.git</developerConnection>
+	    <url>https://github.com/jenkinsci/qualys-pc-plugin</url>
+   	    <tag>HEAD</tag>
+ 	 </scm>
+	
 	<organization>
 		<name>Qualys Inc.</name>
 		<url>https://www.qualys.com/</url>
