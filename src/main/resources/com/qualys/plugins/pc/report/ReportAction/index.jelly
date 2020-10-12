@@ -316,6 +316,7 @@
 		var resultContent = document.getElementById("resultContents");
 		var chartWidgetsDiv = document.getElementById("charts-widgets");		
 		var scanTarget = document.getElementById("scanTarget");
+		var excludedControlsRowData = []
 		//jQuery(".build-summary-reason").hide();		
 
 		var scanResults = ${it.scanResults};
@@ -378,6 +379,20 @@
 			jQuery("#excluded-items").html("<b>*Excluded CIDs: </b>" + "${it.excludedControls}");
 		}
 
+		function clearFilter() {
+			// columns 3 is used for policy name. Please updated column number if policy name column number changed.
+			table.columns(3).search('').draw();
+			// columns 2 is used for criticality. Please updated column number if criticality column number changed.
+			table.columns(2).search('', true, false).draw();
+			// columns 4 is used for status. Please updated column number if status column number changed.
+			table.columns(4).search('', true, false).draw();
+			// If excuded conditions are configured
+			if (excludedControlsRowData.length != 0) {
+				table.rows.add(excludedControlsRowData).draw();
+				excludedControlsRowData = [];
+			}
+		}
+
         jQuery(".left-pill-item").on("click", function(e){    	   
 			var selected = jQuery(this).hasClass("selected");
 			//colsole.log(selected);
@@ -387,10 +402,7 @@
 				jQuery(".reports-main-content").hide();
 				jQuery(this).addClass("selected");
 				if(jQuery(this).hasClass("vulns")){
-					// columns 2 is used for criticality. Please updated column number if criticality column number changed.
-					table.columns(2).search('', true, false).draw();
-					// columns 4 is used for status. Please updated column number if status column number changed.
-    				table.columns(4).search('', true, false).draw();
+					clearFilter();
 					jQuery("#controls").show();
 				}
 				if(jQuery(this).hasClass("summary")){
@@ -516,6 +528,26 @@
     	
     	var rawFailCriteria = "${it.failCriteria}";
     	var failCriteria = rawFailCriteria.split(",");
+
+		var excludedControls = [${it.excludedControls}];
+		if (excludedControls.length != 0)
+		{
+			for (i = excludedControls.length-1; i >= 0; i--) {
+				var r_data = table.rows(function ( idx, data, node ) {
+			        return data.cid === excludedControls[i].toString() ?
+			            true : false;
+			    } ).data();
+
+			    if (r_data[0] != undefined) {
+					excludedControlsRowData.push(r_data[0]);
+				}
+				table.rows(function ( idx, data, node ) {
+			        return data.cid === excludedControls[i].toString() ?
+			            true : false;
+			    } ).remove().draw();
+			}
+		}
+
 		// columns 2 is used for criticality. Please updated column number if criticality column number changed.
     	table.columns(2).search(failCriteria[1], true, false).draw();
 		// columns 4 is used for status. Please updated column number if status column number changed.
