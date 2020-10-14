@@ -511,7 +511,7 @@
         for (i = policyList.length-1; i >= 0; i--) {
  	           var row = table.insertRow(0);
             if (policyFailCount[policyList[i]] != undefined) {
-                row.innerHTML = '<button class="status_header policy-table" onclick="renderPolicyData(event, \'' + policyList[i] +'\')">'+policyList[i]+'</button><br></br><span class="policy_header_table" > Failed by Criteria: ' + policyFailCount[key] + '</span>';
+                row.innerHTML = '<button class="status_header policy-table" onclick="renderPolicyData(event, \'' + policyList[i] +'\')">'+policyList[i]+'</button><br></br><span class="policy_header_table" > Failed by Criteria: ' + policyFailCount[policyList[i]] + '</span>';
             }
             else {
                 row.innerHTML = '<button class="status_header policy-table" onclick="renderPolicyData(event, \'' + policyList[i] +'\')">'+policyList[i]+'</button><br></br><span class="policy_header_table" > Failed by Criteria: 0 </span>';
