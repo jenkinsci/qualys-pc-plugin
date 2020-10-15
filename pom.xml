@@ -131,15 +131,15 @@
 		<name>Qualys Inc.</name>
 		<url>https://www.qualys.com/</url>
 	</organization>
-	<project>
-		<developers>
-			<developer>
-				<id>Qualys</id>
-				<name>Qualys</name>
-				<email>plugins@qualys.com</email>
-			</developer>
-		</developers>
-	</project>
+	
+	<developers>
+		<developer>
+			<id>Qualys</id>
+			<name>Qualys</name>
+			<email>plugins@qualys.com</email>
+		</developer>
+	</developers>
+	
 	<!-- If you want this to appear on the wiki page: <developers> <developer> 
 		<id>bhacker</id> <name>Bob Q. Hacker</name> <email>bhacker@nowhere.net</email> 
 		</developer> </developers> -->
