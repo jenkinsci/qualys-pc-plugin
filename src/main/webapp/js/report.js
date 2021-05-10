@@ -292,4 +292,13 @@ function drawResultSummaryTable(ControlsFailError) {
     }
 
 }
+
+function removeUnwantedChar(scanResultsRaw) {
+	var strData = JSON.stringify(scanResultsRaw).replace(/\&amp;/g,'&')
+	var objData = JSON.parse(strData);
+	if (typeof objData != "object") {
+		objData = JSON.parse(objData);
+	}
+	return objData;
+}
 	
