@@ -319,7 +319,9 @@
 		var excludedControlsRowData = []
 		//jQuery(".build-summary-reason").hide();		
 
-		var scanResults = ${it.scanResults};
+		var scanResultsRaw = ${it.scanResults};
+		var scanResults = removeUnwantedChar(scanResultsRaw);
+		
         var totalFail = 0;
         var failWithCriteria = 0;
         var total_passed = 0;
@@ -368,7 +370,9 @@
         var allControlsChart;
         var controlsChart;
 
-        var policyList = [${it.policyList}];
+        var policyListRaw = [${it.policyList}];
+        var policyList = removeUnwantedChar(policyListRaw);
+        
 		var i;
         setTabs("summary");
         
@@ -506,7 +510,9 @@
 
     function drowPolicyTable() {
         var table = document.getElementById("policyTable");
-        var policyList = [${it.policyList}];
+        var policyListRaw = [${it.policyList}];
+        var policyList = removeUnwantedChar(policyListRaw)
+        
         var i;
         for (i = policyList.length-1; i >= 0; i--) {
  	           var row = table.insertRow(0);
