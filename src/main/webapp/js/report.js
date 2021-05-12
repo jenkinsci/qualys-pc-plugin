@@ -79,6 +79,7 @@ function showControlsTable(scanResult){
 	    	'<option value="Error"> Error </option>' +
 	    	'<option value="Exceptions"> Exceptions </option>' +
 	    	'</select>' +
+	    	'<button class="reset-filters" onclick="clearFilter()">Reset Filters</button>' +
 	    	'</div>'
 	    );
 	    

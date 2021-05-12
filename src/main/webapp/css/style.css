@@ -514,6 +514,13 @@ span.sev-filter-label, select.severity-dropdown {
     position: relative;
     top: 0px;
 }
+
+.reset-filters {
+	margin-left: 20px;
+    position: relative;
+    top: 0px;
+}
+
 #excluded-items, #potential-checked{
 		width: 100%;
 		float: left;
