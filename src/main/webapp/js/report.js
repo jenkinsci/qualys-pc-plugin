@@ -248,10 +248,18 @@ function drowAllControlsChart(failControls, errorControls, passControls, excepti
       }
 	
 	var options = {
-	"legend": {
-	      display: true,
-	      position: "right"
-	    },
+	responsive: true,
+	maintainAspectRatio: false,
+	plugins: {
+		"legend": {
+		      display: true,
+		      position: "right"
+		    },
+		    "title": {
+	          display: true,
+	          text: 'Total Controls (' + totalControls.toString() + ')'
+        	}
+	},
     "tooltips": {
       "enabled": show_tooltip,
       "callbacks": {
@@ -259,11 +267,7 @@ function drowAllControlsChart(failControls, errorControls, passControls, excepti
                 return data.labels[tooltipItem.index];
             }
         }
-    },
-	"title": {
-          display: true,
-          text: 'Total Controls (' + totalControls.toString() + ')'
-        }
+    }
 	};
 	var pieData = {
 	    "datasets": [{
