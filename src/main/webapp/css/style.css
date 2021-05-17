@@ -391,9 +391,13 @@
 	    margin-bottom: 10px;
 	}
 	
-#sevPVulns, #sevCVulns, #allControls{
+#sevPVulns, #sevCVulns{
 	float: left;
 	margin-top: 3%;
+}
+
+.canvasParent {
+    height: 200px;
 }
 
 .chart-legend {

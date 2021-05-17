@@ -238,32 +238,37 @@ function drowAllControlsChart(failControls, errorControls, passControls, excepti
 	var count = [passControls, failControls, errorControls, exceptionsControls];
 	var labels = [passControls.toString(), failControls.toString(), errorControls.toString(), exceptionsControls.toString()]
 	var colors = ["#54a92a", "#de1d0b", "#b0bfc6", "#ab23a6"];
-	var show_tooltip = true;
 	
 	if (totalControls == 0) {
         count = ["1", "1", "1", "1"];
         labels = ["0", "0", "0", "0", "0"];
         colors = ["#B0BFc6", "#B0BFc6", "#B0BFc6", "#B0BFc6", "#B0BFc6"];
-        show_tooltip = false;
       }
 	
 	var options = {
-	"legend": {
-	      display: true,
-	      position: "right"
-	    },
-    "tooltips": {
-      "enabled": show_tooltip,
-      "callbacks": {
-            "label": function(tooltipItem, data) {
-                return data.labels[tooltipItem.index];
-            }
-        }
-    },
-	"title": {
-          display: true,
-          text: 'Total Controls (' + totalControls.toString() + ')'
-        }
+	responsive: true,
+	maintainAspectRatio: false,
+	plugins: {
+		"title": {
+	          display: true,
+	          text: 'Total Controls (' + totalControls.toString() + ')'
+        	},
+		"legend": {
+		      display: true,
+		      position: "right"
+		    },
+	    "tooltip": {
+	      "enabled": true,
+	      "callbacks": 
+	      	{
+                label: function(context) 
+                {
+                    var label = context.label;
+                    return label;
+             	}     
+              }
+	    	}
+    	}
 	};
 	var pieData = {
 	    "datasets": [{

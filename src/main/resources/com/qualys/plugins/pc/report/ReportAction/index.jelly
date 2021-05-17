@@ -21,9 +21,8 @@
 <l:main-panel>
 	<script type="text/javascript" src="${resURL}/plugin/qualys-pc/jquery/js/jquery-3.5.1.min.js"></script>
 	 <script type="text/javascript" src="${resURL}/plugin/qualys-pc/datatable/js/jquery.dataTables.min.js"></script>
-	 <script type="text/javascript" src="${resURL}/plugin/qualys-pc/jquery/js/chart.min.js"></script>
 	 <script type="text/javascript" src="${resURL}/plugin/qualys-pc/js/report.js"></script>
-	 <script type="text/javascript" src="${resURL}/plugin/qualys-pc/jquery/js/chart-2.9.3.min.js"></script>
+	 <script type="text/javascript" src="${resURL}/plugin/qualys-pc/jquery/js/chart-3.2.1.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="${resURL}/plugin/qualys-pc/css/style.css" />
 	<link href="${resURL}/plugin/qualys-pc/datatable/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css"/>
 	
@@ -220,8 +219,8 @@
                         <div class="card" id="allControlsChart"> 
                             <div class="vulnschart-content">
                                 <div class="card-title" id="totalControlsTitle">Overall Compliance</div>
-                                <div class="report-chart-div" id="allControls-parent">
-                                    <canvas id="allControls" height="160px" ></canvas>
+                                <div class="canvasParent" id="allControls-parent">
+                                    <canvas id="allControls"></canvas>
                                 </div>
                             </div>
                         </div>
