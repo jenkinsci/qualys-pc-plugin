@@ -559,7 +559,7 @@
     	table.columns(4).search(failCriteria[0], true, false).draw();
 		if (currentTab != "Summary") {
 			// columns 3 is used for policy name. Please updated column number if policy name column number changed.
-			table.columns(3).search(currentTab).draw();
+			table.columns(3).search("^" + currentTab + "$",true, false, true).draw();
 		} else {
 			table.columns(3).search('').draw();
 		}
