@@ -20,7 +20,7 @@ function showControlsTable(scanResult){
         	{ "sTitle": "Control ID", "aTargets": [0], "width": "5%", "className": "center"},
             { "sTitle": "Title", "aTargets": [1], "width": "15%", "className": "left" },    
             { "sTitle": "Criticality", "aTargets": [2], "width": "7%", "className": "center"},
-            { "sTitle": "Policies", "aTargets": [3], "width": "9%", "className": "left"},
+            { "sTitle": "Policy Title", "aTargets": [3], "width": "9%", "className": "left"},
             { "sTitle": "Status", "aTargets": [4], "width": "8%", "className": "center"},
             { "sTitle": "Unexpected Values", "aTargets": [5], "width": "15%", "className": "left"},
             { "sTitle": "Missing Values", "aTargets": [6], "width": "15%", "className": "left"}
