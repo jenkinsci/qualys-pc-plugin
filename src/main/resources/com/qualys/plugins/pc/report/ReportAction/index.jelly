@@ -394,6 +394,10 @@
 				table.rows.add(excludedControlsRowData).draw();
 				excludedControlsRowData = [];
 			}
+			//set Status filter to "All"
+			document.getElementsByClassName("status-dropdown")[0].value = "";
+			//set Criticality filter to "All"
+			document.getElementsByClassName("criticality-dropdown")[0].value = "";
 		}
 
         jQuery(".left-pill-item").on("click", function(e){    	   
