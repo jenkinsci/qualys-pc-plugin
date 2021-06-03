@@ -20,7 +20,7 @@ function showControlsTable(scanResult){
         	{ "sTitle": "Control ID", "aTargets": [0], "width": "5%", "className": "center"},
             { "sTitle": "Title", "aTargets": [1], "width": "15%", "className": "left" },    
             { "sTitle": "Criticality", "aTargets": [2], "width": "7%", "className": "center"},
-            { "sTitle": "Policies", "aTargets": [3], "width": "9%", "className": "left"},
+            { "sTitle": "Policy Title", "aTargets": [3], "width": "9%", "className": "left"},
             { "sTitle": "Status", "aTargets": [4], "width": "8%", "className": "center"},
             { "sTitle": "Unexpected Values", "aTargets": [5], "width": "15%", "className": "left"},
             { "sTitle": "Missing Values", "aTargets": [6], "width": "15%", "className": "left"}
@@ -79,6 +79,7 @@ function showControlsTable(scanResult){
 	    	'<option value="Error"> Error </option>' +
 	    	'<option value="Exceptions"> Exceptions </option>' +
 	    	'</select>' +
+	    	'<button class="reset-filters" onclick="clearFilter()">Reset Filters</button>' +
 	    	'</div>'
 	    );
 	    
@@ -237,32 +238,37 @@ function drowAllControlsChart(failControls, errorControls, passControls, excepti
 	var count = [passControls, failControls, errorControls, exceptionsControls];
 	var labels = [passControls.toString(), failControls.toString(), errorControls.toString(), exceptionsControls.toString()]
 	var colors = ["#54a92a", "#de1d0b", "#b0bfc6", "#ab23a6"];
-	var show_tooltip = true;
 	
 	if (totalControls == 0) {
         count = ["1", "1", "1", "1"];
         labels = ["0", "0", "0", "0", "0"];
         colors = ["#B0BFc6", "#B0BFc6", "#B0BFc6", "#B0BFc6", "#B0BFc6"];
-        show_tooltip = false;
       }
 	
 	var options = {
-	"legend": {
-	      display: true,
-	      position: "right"
-	    },
-    "tooltips": {
-      "enabled": show_tooltip,
-      "callbacks": {
-            "label": function(tooltipItem, data) {
-                return data.labels[tooltipItem.index];
-            }
-        }
-    },
-	"title": {
-          display: true,
-          text: 'Total Controls (' + totalControls.toString() + ')'
-        }
+	responsive: true,
+	maintainAspectRatio: false,
+	plugins: {
+		"title": {
+	          display: true,
+	          text: 'Total Controls (' + totalControls.toString() + ')'
+        	},
+		"legend": {
+		      display: true,
+		      position: "right"
+		    },
+	    "tooltip": {
+	      "enabled": true,
+	      "callbacks": 
+	      	{
+                label: function(context) 
+                {
+                    var label = context.label;
+                    return label;
+             	}     
+              }
+	    	}
+    	}
 	};
 	var pieData = {
 	    "datasets": [{
@@ -291,5 +297,14 @@ function drawResultSummaryTable(ControlsFailError) {
         document.getElementById("build-summary-table").rows[3].cells[1+i].innerHTML = ControlsFailError[indExceptions].toString();
     }
 
+}
+
+function removeUnwantedChar(scanResultsRaw) {
+	var strData = JSON.stringify(scanResultsRaw).replace(/\&amp;/g,'&')
+	var objData = JSON.parse(strData);
+	if (typeof objData != "object") {
+		objData = JSON.parse(objData);
+	}
+	return objData;
 }
 	

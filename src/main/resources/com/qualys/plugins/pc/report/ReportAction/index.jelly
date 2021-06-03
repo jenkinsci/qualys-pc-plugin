@@ -21,9 +21,8 @@
 <l:main-panel>
 	<script type="text/javascript" src="${resURL}/plugin/qualys-pc/jquery/js/jquery-3.5.1.min.js"></script>
 	 <script type="text/javascript" src="${resURL}/plugin/qualys-pc/datatable/js/jquery.dataTables.min.js"></script>
-	 <script type="text/javascript" src="${resURL}/plugin/qualys-pc/jquery/js/chart.min.js"></script>
 	 <script type="text/javascript" src="${resURL}/plugin/qualys-pc/js/report.js"></script>
-	 <script type="text/javascript" src="${resURL}/plugin/qualys-pc/jquery/js/chart-2.9.3.min.js"></script>
+	 <script type="text/javascript" src="${resURL}/plugin/qualys-pc/jquery/js/chart-3.2.1.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="${resURL}/plugin/qualys-pc/css/style.css" />
 	<link href="${resURL}/plugin/qualys-pc/datatable/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css"/>
 	
@@ -220,8 +219,8 @@
                         <div class="card" id="allControlsChart"> 
                             <div class="vulnschart-content">
                                 <div class="card-title" id="totalControlsTitle">Overall Compliance</div>
-                                <div class="report-chart-div" id="allControls-parent">
-                                    <canvas id="allControls" height="160px" ></canvas>
+                                <div class="canvasParent" id="allControls-parent">
+                                    <canvas id="allControls"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -319,7 +318,9 @@
 		var excludedControlsRowData = []
 		//jQuery(".build-summary-reason").hide();		
 
-		var scanResults = ${it.scanResults};
+		var scanResultsRaw = ${it.scanResults};
+		var scanResults = removeUnwantedChar(scanResultsRaw);
+		
         var totalFail = 0;
         var failWithCriteria = 0;
         var total_passed = 0;
@@ -368,7 +369,9 @@
         var allControlsChart;
         var controlsChart;
 
-        var policyList = [${it.policyList}];
+        var policyListRaw = [${it.policyList}];
+        var policyList = removeUnwantedChar(policyListRaw);
+        
 		var i;
         setTabs("summary");
         
@@ -391,6 +394,10 @@
 				table.rows.add(excludedControlsRowData).draw();
 				excludedControlsRowData = [];
 			}
+			//set Status filter to "All"
+			document.getElementsByClassName("status-dropdown")[0].value = "";
+			//set Criticality filter to "All"
+			document.getElementsByClassName("criticality-dropdown")[0].value = "";
 		}
 
         jQuery(".left-pill-item").on("click", function(e){    	   
@@ -506,7 +513,9 @@
 
     function drowPolicyTable() {
         var table = document.getElementById("policyTable");
-        var policyList = [${it.policyList}];
+        var policyListRaw = [${it.policyList}];
+        var policyList = removeUnwantedChar(policyListRaw)
+        
         var i;
         for (i = policyList.length-1; i >= 0; i--) {
  	           var row = table.insertRow(0);
@@ -554,7 +563,7 @@
     	table.columns(4).search(failCriteria[0], true, false).draw();
 		if (currentTab != "Summary") {
 			// columns 3 is used for policy name. Please updated column number if policy name column number changed.
-			table.columns(3).search(currentTab).draw();
+			table.columns(3).search("^" + currentTab + "$",true, false, true).draw();
 		} else {
 			table.columns(3).search('').draw();
 		}
