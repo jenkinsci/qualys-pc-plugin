@@ -312,8 +312,63 @@ public class QualysPCClient extends QualysBaseClient {
 	public void testConnectionUsingGatewayAPI() throws Exception {
 		String errorMessage = "";
 		CloseableHttpResponse response = null;
-		try {
-			response = getAuthToken();
+		try(CloseableHttpClient httpclient = this.getHttpClient()) {
+			logger.info("Generating Auth Token...");
+			StringBuilder output_msg = new StringBuilder();
+			int timeInterval = 0;
+			while (timeInterval < this.retryCount) {
+				BufferedReader br1 = null;
+				try {
+					URL url = this.getAbsoluteUrlForTestConnection(this.apiMap.get("getAuth"));
+					logger.info("Making Request To: " + url.toString());
+					HttpPost postRequest = new HttpPost(url.toString());
+					postRequest.addHeader("accept", "application/json");
+					postRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
+					byte[] bb = this.getJWTAuthHeader();
+					ByteArrayEntity br = new ByteArrayEntity(bb);
+					postRequest.setEntity(br);
+					logger.info("JWT Auth Header Request To: " + br.getContent().toString());
+					response = httpclient.execute(postRequest);
+					logger.info("Post request status: " + response.getStatusLine().getStatusCode());
+
+					if (response.getEntity() != null) {
+						br1 = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+						String output;
+						while ((output = br1.readLine()) != null) {
+							output_msg.append(output);
+						}
+					}
+					this.tmp_token = output_msg.toString();
+					logger.info("Fetching auth token: Response code: " + response.getStatusLine().getStatusCode());
+					break;
+				} catch (SocketException e) {
+					logger.info("SocketException : " + e);
+					throw e;
+				} catch (IOException e) {
+					logger.info("IOException : " + e);
+					throw e;
+				} catch (Exception e) {
+					logger.info("Exception : " + e);
+
+					// Handling Empty response and empty response code here
+					timeInterval++;
+					if (timeInterval < this.retryCount) {
+						try {
+							logger.info("Retry fetching auth token ...");
+							Thread.sleep(this.retryInterval * 1000);
+						} catch (Exception e1) {
+							logger.info("Exception : " + e1);
+							throw e1;
+						}
+					} else {
+						throw e;
+					}
+				} finally {
+					if (br1 != null) {
+						br1.close();
+					}
+				}
+			}
 			boolean isValidToken = false;
 			if (response.getStatusLine().getStatusCode() == 201) {
 				logger.info("Token Generation Successful");
@@ -348,52 +403,6 @@ public class QualysPCClient extends QualysBaseClient {
 		}
 	}
 
-	private CloseableHttpResponse getAuthToken() throws Exception {
-		logger.info("Generating Auth Token...");
-		String output_msg = "";
-		int timeInterval = 0;
-		CloseableHttpResponse response = null;
-		while (timeInterval < this.retryCount) {
-			output_msg = "";
-			try {
-				response = this.postTestConnection(this.apiMap.get("getAuth"));
-				if (response.getEntity() != null) {
-					BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-					String output;
-					while ((output = br.readLine()) != null) {
-						output_msg += output;
-					}
-				}
-				this.tmp_token = output_msg;
-				logger.info("Fetching auth token: Response code: " + response.getStatusLine().getStatusCode());
-				break;
-			} catch (SocketException e) {
-				logger.info("SocketException : " + e);
-				throw e;
-			} catch (IOException e) {
-				logger.info("IOException : " + e);
-				throw e;
-			} catch (Exception e) {
-				logger.info("Exception : " + e);
-
-				// Handling Empty response and empty response code here
-				timeInterval++;
-				if (timeInterval < this.retryCount) {
-					try {
-						logger.info("Retry fetching auth token ...");
-						Thread.sleep(this.retryInterval * 1000);
-					} catch (Exception e1) {
-						logger.info("Exception : " + e1);
-						throw e1;
-					}
-				} else {
-					throw e;
-				}
-
-			}
-		}
-		return response;
-	}
 
 	private boolean validateSubscription(String jwt) {
 		String[] jwtToken = jwt.split("\\.");
@@ -411,26 +420,6 @@ public class QualysPCClient extends QualysBaseClient {
 		return false;
 	}
 
-	private CloseableHttpResponse postTestConnection(String apiPath) throws Exception {
-		CloseableHttpResponse response = null;
-		try {
-			URL url = this.getAbsoluteUrlForTestConnection(apiPath);
-			logger.info("Making Request To: " + url.toString());
-			CloseableHttpClient httpclient = this.getHttpClient();
-			HttpPost postRequest = new HttpPost(url.toString());
-			postRequest.addHeader("accept", "application/json");
-			postRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
-			byte[] bb = this.getJWTAuthHeader();
-			ByteArrayEntity br = new ByteArrayEntity(bb);
-			postRequest.setEntity(br);
-			logger.info("JWT Auth Header Request To: " + br.getContent().toString());
-			response = httpclient.execute(postRequest);
-			logger.info("Post request status: " + response.getStatusLine().getStatusCode());
-		} catch (Exception e) {
-			throw e;
-		}
-		return response;
-	}
 
 	public JsonObject getConnector() throws Exception {
 		logger.info("Connector Name is accepted and getting the DOC.");
@@ -777,14 +766,12 @@ public class QualysPCClient extends QualysBaseClient {
 	private QualysPCResponse get(String apiPath, Boolean getJson) throws Exception {
 		QualysPCResponse apiResponse = new QualysPCResponse();
 		String apiResponseString = "";
-		CloseableHttpClient httpclient = null;
 
-		try {
+		try (CloseableHttpClient httpclient = this.getHttpClient()){
 			URL url = this.getAbsoluteUrl(apiPath);
 			String making = "Making GET Request: " + url.toString();
 			this.stream.println(making);
 			apiResponse.setRequest(making);
-			httpclient = this.getHttpClient();
 
 			HttpGet getRequest = new HttpGet(url.toString());
 			getRequest.addHeader("Content-Type", "text/xml");
@@ -817,9 +804,7 @@ public class QualysPCClient extends QualysBaseClient {
 					logger.info("Concurrent API Limit is reached, retrying in every 2 seconds");
 					Thread.sleep(pollingInMillis);
 
-					httpclient = null;
 					response = null;
-					httpclient = this.getHttpClient();
 					response = httpclient.execute(getRequest);
 					apiResponse.setResponseCode(response.getStatusLine().getStatusCode());
 					logger.info("Server returned with ResponseCode: " + apiResponse.getResponseCode());
@@ -878,10 +863,9 @@ public class QualysPCClient extends QualysBaseClient {
 	private QualysPCResponse post(String apiPath, String requestData, String requestXmlString) throws Exception {
 		QualysPCResponse apiResponse = new QualysPCResponse();
 		String apiResponseString = "";
-		CloseableHttpClient httpclient = null;
 		String uri = null;
 
-		try {
+		try(CloseableHttpClient	httpclient = this.getHttpClient()) {
 			URL url = this.getAbsoluteUrl(apiPath);
 			if (!requestData.isEmpty()) {
 				uri = url.toString() + "&" + requestData;
@@ -900,7 +884,6 @@ public class QualysPCClient extends QualysBaseClient {
 
 			logger.info("Making POST Request: " + link);
 			apiResponse.setRequest(uri.toString());
-			httpclient = this.getHttpClient();
 			HttpPost postRequest = new HttpPost(uri.toString());
 			postRequest.addHeader("accept", "application/xml");
 			postRequest.addHeader("X-Requested-With", "Qualys");
@@ -942,9 +925,7 @@ public class QualysPCClient extends QualysBaseClient {
 						listener.getLogger().println("Concurrent API Limit is reached, retrying in every "
 								+ String.valueOf(pollingIntervalForVulns) + " seconds");
 
-					httpclient = null;
 					response = null;
-					httpclient = this.getHttpClient();
 					response = httpclient.execute(postRequest);
 					apiResponse.setResponseCode(response.getStatusLine().getStatusCode());
 					if (listener != null)
@@ -1176,13 +1157,12 @@ public class QualysPCClient extends QualysBaseClient {
 	}// end of getDoc method
 
 	private String getresponseString(CloseableHttpResponse response) throws Exception {
-		String apiResponseString = "";
-		try {
-			BufferedReader br = new BufferedReader(
-					new InputStreamReader(response.getEntity().getContent(), "iso-8859-1"));
+		StringBuilder apiResponseString = new StringBuilder();
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "iso-8859-1"))){
+
 			String output;
 			while ((output = br.readLine()) != null) {
-				apiResponseString += output;
+				apiResponseString.append(output);
 			}
 		} catch (Exception e) {
 			String error = "Exception while getting response String. Error: " + e.getMessage();
@@ -1191,6 +1171,6 @@ public class QualysPCClient extends QualysBaseClient {
 				logger.info("\tat " + traceElement);
 			throw new Exception(error);
 		}
-		return apiResponseString;
+		return apiResponseString.toString();
 	}
 } // end of QualysPCClient Class
