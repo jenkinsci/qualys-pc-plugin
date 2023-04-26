@@ -614,7 +614,6 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 
 		@POST
 		public ListBoxModel doFillCredsIdItems(@AncestorInPath Item item, @QueryParameter String credsId) {
-			Jenkins.getInstance().checkPermission(Item.CONFIGURE);
 			StandardListBoxModel result = new StandardListBoxModel();
 			if (item == null) {
 				if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
@@ -635,7 +634,6 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 		@POST
 		public ListBoxModel doFillUnixAndWindowsCredentialsIdItems(@AncestorInPath Item item,
 				@QueryParameter String unixAndWindowsCredentialsId) {
-			Jenkins.getInstance().checkPermission(Item.CONFIGURE);
 			StandardListBoxModel result = new StandardListBoxModel();
 			if (item == null) {
 				if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
@@ -698,7 +696,6 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 		@POST
 		public ListBoxModel doFillProxyCredentialsIdItems(@AncestorInPath Item item,
 				@QueryParameter String proxyCredentialsId) {
-			Jenkins.getInstance().checkPermission(Item.CONFIGURE);
 			StandardListBoxModel result = new StandardListBoxModel();
 			if (item == null) {
 				if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
@@ -867,7 +864,7 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 				@QueryParameter String credsId, @QueryParameter String proxyServer, @QueryParameter String proxyPort,
 				@QueryParameter String proxyCredentialsId, @QueryParameter boolean useProxy,
 				@AncestorInPath Item item) {
-			Jenkins.getInstance().checkPermission(Item.CONFIGURE);
+			item.checkPermission(Item.CONFIGURE);
 			try {
 				int proxyPortInt = (doCheckProxyPort(proxyPort) == FormValidation.ok()) ? Integer.parseInt(proxyPort)
 						: 80;
@@ -910,7 +907,7 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 				@QueryParameter String proxyPort, @QueryParameter String proxyCredentialsId,
 				@QueryParameter boolean useProxy, @QueryParameter boolean useEc2, @QueryParameter boolean useHost) {
 
-			Jenkins.getInstance().checkPermission(Item.CONFIGURE);
+			item.checkPermission(Item.CONFIGURE);
 			StandardListBoxModel model = new StandardListBoxModel();
 			JsonObject scannerList = new JsonObject();
 			Option e1 = new Option("Select the scanner appliance (Default - External)", "External");
@@ -971,7 +968,7 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 				@QueryParameter String apiServer, @QueryParameter String credsId, @QueryParameter String proxyServer,
 				@QueryParameter String proxyPort, @QueryParameter String proxyCredentialsId,
 				@QueryParameter boolean useProxy) {
-			Jenkins.getInstance().checkPermission(Item.CONFIGURE);
+			item.checkPermission(Item.CONFIGURE);
 			StandardListBoxModel model = new StandardListBoxModel();
 			Set<String> nameList = new HashSet<String>();
 			Option e1 = new Option("Select the Option Profile", "");
@@ -1053,7 +1050,7 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 				@QueryParameter String apiServer, @QueryParameter String credsId, @QueryParameter String proxyServer,
 				@QueryParameter String proxyPort, @QueryParameter String proxyCredentialsId,
 				@QueryParameter boolean useProxy, @QueryParameter boolean useEc2) {
-			Jenkins.getInstance().checkPermission(Item.CONFIGURE);
+			item.checkPermission(Item.CONFIGURE);
 			StandardListBoxModel model = new StandardListBoxModel();
 			Option e1 = new Option("--select--", "");
 			model.add(e1);
