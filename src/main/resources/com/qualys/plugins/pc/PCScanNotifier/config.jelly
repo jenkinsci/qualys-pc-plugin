@@ -7,276 +7,277 @@
         xmlns:t="/lib/hudson"
         xmlns:f="/lib/form"
         xmlns:c="/lib/credentials">
-    
+
     <!-- CSS handlers -->
     <style>
-    	.extraInput {
-    		padding-left:15%;
-    	}
-    	
-    	#webInfoMessage{
-    		font-size: 0.9em !important;
-    		padding: 0 0 1em 1em;
-    	}
-    	
-    	input[name=useHost], input[name=useEc2]{
-    		-webkit-appearance: radio;
-		    -moz-appearance: radio;
-		    -ms-appearance: radio;
-    	} 
-    	
-    	select {
-    		height: 29px;
-    	}
-    	#authInfoSpinner, #authInfoMessage, #profileInfoMessage, #profileInfoSpinner{
-    		 margin-left: 17%;
-    		 margin-top: -10px;
-    		 margin-bottom: 10px;
-    	}
-    	.qualys_logo{
-    		float:right;
-    	}
-    	.qualys_logo img{
-    		width:100px;
-    	}
-    	
-    	.failConditionTitle{
-    		margin-left: 30px;
-    	}
-    	
-    	.failConditionValues{
-    		margin-left: 50px;
-    	}
-    	
-    	.margin-top-10{
-    		margin-top: 10px;
-    	}
-    	.severityBlock{
-    		margin-left:45px !important;
-    	}
-    	.conditionTitle{
-    		 margin-bottom: -20px;
-    		 margin-top: 10px;
-    		 margin-left: 30px;
-    	}
-    	.failureTitle{
-    		font-size: 18px;
-    	}
-    	.cvssSection{
-    		margin-left:100px !important;
-    	}    	
+        .extraInput {
+        padding-left:15%;
+        }
+
+        #webInfoMessage{
+        font-size: 0.9em !important;
+        padding: 0 0 1em 1em;
+        }
+
+        input[name=useHost], input[name=useEc2]{
+        -webkit-appearance: radio;
+        -moz-appearance: radio;
+        -ms-appearance: radio;
+        }
+
+        select {
+        height: 29px;
+        }
+        #authInfoSpinner, #authInfoMessage, #profileInfoMessage, #profileInfoSpinner{
+        margin-left: 17%;
+        margin-top: -10px;
+        margin-bottom: 10px;
+        }
+        .qualys_logo{
+        float:right;
+        }
+        .qualys_logo img{
+        width:100px;
+        }
+
+        .failConditionTitle{
+        margin-left: 30px;
+        }
+
+        .failConditionValues{
+        margin-left: 50px;
+        }
+
+        .margin-top-10{
+        margin-top: 10px;
+        }
+        .severityBlock{
+        margin-left:45px !important;
+        }
+        .conditionTitle{
+        margin-bottom: -20px;
+        margin-top: 10px;
+        margin-left: 30px;
+        }
+        .failureTitle{
+        font-size: 18px;
+        }
+        .cvssSection{
+        margin-left:100px !important;
+        }
         .policyTableClass{
-            height: 120px;
-            overflow: scroll;
-            width: 98%;
-            background-color: white;
-            margin-bottom: 20px;
-            border: 1px solid #c1c1c163;
+        height: 120px;
+        overflow: scroll;
+        width: 98%;
+        background-color: white;
+        margin-bottom: 20px;
+        border: 1px solid #c1c1c163;
         }
 
         #policyTable{
-            text-align: left;
-            width: 100%;
-            background-color: white;
-            
+        text-align: left;
+        width: 100%;
+        background-color: white;
+
         }
-    	#cvssTextBox{
-    		width:9%; 
-    		min-width:45px; 
-    		max-width:50px;
-    		margin-bottom: 5px;
-    		margin-top: 5px;
-    		margin-left:2px !important;
-    	}    	
-    	#severityTitle{
-    		margin-bottom: -36px;
-    	}    	
-    	.noteTitle{
-    		margin-bottom: 0px;  
-    	}    	
-    	#qidSevSection.severityBlock{
-    		margin-left: -125px !important;
-    	}
-    	 select.select-ajax-pending {
-		    padding-left: 1.5em;
-		    padding-top: 0.5em;
-		    padding-bottom: 0.5em;
-		    color: transparent;
-		    background-image: url('${resURL}/plugin/qualys-pc/images/spinner.gif') !important;
-		    background-repeat: no-repeat !important;
-		    background-position: 2px !important;
-		}    	
-    	
+        #cvssTextBox{
+        width:9%;
+        min-width:45px;
+        max-width:50px;
+        margin-bottom: 5px;
+        margin-top: 5px;
+        margin-left:2px !important;
+        }
+        #severityTitle{
+        margin-bottom: -36px;
+        }
+        .noteTitle{
+        margin-bottom: 0px;
+        }
+        #qidSevSection.severityBlock{
+        margin-left: -125px !important;
+        }
+        select.select-ajax-pending {
+        padding-left: 1.5em;
+        padding-top: 0.5em;
+        padding-bottom: 0.5em;
+        color: transparent;
+        background-image: url('${resURL}/plugin/qualys-pc/images/spinner.gif') !important;
+        background-repeat: no-repeat !important;
+        background-position: 2px !important;
+        }
+
     </style>
-    
+    <script type="text/javascript" src="${resURL}/plugin/qualys-pc/js/purify.js"></script>
     <!-- Js Script block -->
-	<script type="text/javascript">
-	document.onreadystatechange = docReady;  //for freestyle
-	document.load = docReady;   //for pipeline
+    <script type="text/javascript">
+        document.onreadystatechange = docReady;  //for freestyle
+        document.load = docReady;   //for pipeline
 
-	function docReady() {
-		document.getElementsByName("_.credsId")[0].style.width = "50%";
-		document.getElementsByName("_.proxyCredentialsId")[0].style.width = "50%";
-		//document.getElementsByName("failByStateAndCriticality")[0].checked = true;
-		var checkbx1 = document.getElementsByName("useHost")[0];			
-		var checkbx2 = document.getElementsByName("useEc2")[0];		
-		if(!checkbx2.checked &amp;&amp; !checkbx1.checked){
-			checkbx1.checked = true;
-			if(document.getElementsByName("_.hostIp")[0] != undefined)
-				document.getElementsByName("_.hostIp")[0].parentNode.parentNode.style.display='table-row';
-			//updateOptionalBlock(checkbx1,true);
-		}
-		var checkbx = document.getElementsByName("_.runConnector")[0];		
-		if("${instance.runConnector}" == "false"){
-			checkbx.checked = false;			
-		}
-		
-		function updateSelectedPolicyList(){
-			var policyListData = document.getElementById("policyList");
-			var i;
-			var selectedPolicy = "";
-			
-			for (i = policyListData.options.length-1; i >= 0; i--) {
-				if (policyListData[i].selected == true) {
-					selectedPolicy += policyListData[i].value + ",,";
-				}
-				
-			}
-			if (selectedPolicy.length > 0) {
-				selectedPolicy = selectedPolicy.substring(0, selectedPolicy.length - 2);
-			}
+        function docReady() {
+            document.getElementsByName("_.credsId")[0].style.width = "50%";
+            document.getElementsByName("_.proxyCredentialsId")[0].style.width = "50%";
+            //document.getElementsByName("failByStateAndCriticality")[0].checked = true;
+            var checkbx1 = document.getElementsByName("useHost")[0];
+            var checkbx2 = document.getElementsByName("useEc2")[0];
+            if (!checkbx2.checked &amp;&amp; !checkbx1.checked) {
+                checkbx1.checked = true;
+                if (document.getElementsByName("_.hostIp")[0] != undefined)
+                    document.getElementsByName("_.hostIp")[0].parentNode.parentNode.style.display = 'table-row';
+                //updateOptionalBlock(checkbx1,true);
+            }
+            var checkbx = document.getElementsByName("_.runConnector")[0];
+            if ("${instance.runConnector}" == "false") {
+                checkbx.checked = false;
+            }
 
-			document.getElementById("selectedPolicies").value = selectedPolicy;
-		
-		}
-        var policyCount = 0;
-        function updatePolicyTable(){
-			var i;
-			var selectedPolicy = "";
-			
-			for (i = policyCount - 1; i >= 0; i--) {
-				if (document.getElementById("policy_"+i.toString()).checked == true) {
-					selectedPolicy += document.getElementById("policy_"+i.toString()).name + ",,";
-				}
-				
-			}
-			if (selectedPolicy.length > 0) {
-				selectedPolicy = selectedPolicy.substring(0, selectedPolicy.length - 2);
-			}
-			document.getElementById("selectedPolicies").value = selectedPolicy;
-		
-		}
-			
-		function updatePoliciesList() {
-			let optionProfileData = document.getElementById("optionProfile");
-			let optionProfileJson = JSON.parse(optionProfileData.value);
-			let policiesJson = optionProfileJson["policyDetails"];
-			var selectedPolicy = "";
-			
-			var i;
-            var policyTable = document.getElementById("policyTable");
-            document.getElementById("policyTable").innerHTML = '';
-            policyCount = 0;
-			
-			for (i in policiesJson) {
-				selectedPolicy += policiesJson[i] + "::" + i + ",,";
+            function updateSelectedPolicyList() {
+                var policyListData = document.getElementById("policyList");
+                var i;
+                var selectedPolicy = "";
 
-                var row = policyTable.insertRow(0);
-                var pName = policiesJson[i] + "::" + i;
-                row.innerHTML = '<input type="checkbox" name="'+ pName +'" id="policy_'+ policyCount.toString() +'"> '+i +'</input>';
-                document.getElementById("policy_"+policyCount.toString()).checked = true;
-                policyCount++;
+                for (i = policyListData.options.length - 1; i >= 0; i--) {
+                    if (policyListData[i].selected == true) {
+                        selectedPolicy += policyListData[i].value + ",,";
+                    }
 
-			}
-			selectedPolicy = selectedPolicy.substring(0, selectedPolicy.length - 2);			
-			document.getElementById("selectedPolicies").value = selectedPolicy;
-		}
-		
-		
-		function configClicked(){		
-		    if(this.attributes.id.value == checkbx2.attributes.id.value){
-			    if(!checkbx2.checked){
-			    	checkbx2.checked = true;
-			    	updateOptionalBlock(this,true);
-			    }else{
-				    checkbx1.checked = false;
-				    checkbx2.checked = true;
-				    updateOptionalBlock(checkbx1,true);
-				    //return false;
-				}
-			}
-			if(this.attributes.id.value == checkbx1.attributes.id.value){
-				if(!checkbx1.checked){
-			    	checkbx1.checked = true;
-			    	updateOptionalBlock(this,true);
-			    }else{
-				    checkbx2.checked=false;
-				    checkbx1.checked = true;
-				    updateOptionalBlock(checkbx2,true);
-				    //return false;
-			    }
-			}
-		} // End of configClicked
-		
-		
-		document.getElementsByName("useHost")[0].addEventListener("click", configClicked, true);
-		document.getElementsByName("useEc2")[0].addEventListener("click", configClicked, true);
-		document.getElementById("optionProfile").addEventListener("change", updatePoliciesList);
-        document.getElementById("policyTable").addEventListener("click", updatePolicyTable, true);
-		
-		//For Policy List
-		function trimList(list){
-			var i = 0;
-			var newList = [];
-			for (i = list.length-1; i >= 0; i--) {
-				if (list[i] != "") {
-					newList.push(list[i].trim());
-				}
-			}
-			return newList;
-		}
+                }
+                if (selectedPolicy.length > 0) {
+                    selectedPolicy = selectedPolicy.substring(0, selectedPolicy.length - 2);
+                }
 
-		let optionProfileData = document.getElementById("optionProfile");
-		var i;
-		
-		var selectedPoliciesData = document.getElementById("selectedPolicies");
-		var selectedPolicyList = trimList(selectedPoliciesData.value.split(",,"));
+                let encodedPolicyName = DOMPurify.sanitize(selectedPolicy);
+                document.getElementById("selectedPolicies").value = encodedPolicyName;
+            }
+            var policyCount = 0;
+            function updatePolicyTable() {
+                var i;
+                var selectedPolicy = "";
 
-		if (optionProfileData.value != "") {
-			let optionProfileJson = JSON.parse(optionProfileData.value);
-		
-			let policiesJson = optionProfileJson["policyDetails"];
-	
-	        var policyTable = document.getElementById("policyTable");
-	        document.getElementById("policyTable").innerHTML = '';
-	        policyCount = 0;
-			
-			for (i in policiesJson) {
-				
-	            var row = policyTable.insertRow(0);
-	            var pName = policiesJson[i] + "::" + i;
-	            row.innerHTML = '<input type="checkbox" name="'+ pName +'" id="policy_'+ policyCount.toString() +'"> '+i +'</input>';
-	            
-	            //document.getElementById("policy_"+policyCount.toString()).selected = false;
-	            
-	
-				var j;
-				for (j = selectedPolicyList.length - 1; j >= 0; j--) {
-	                if (selectedPolicyList[j].includes(document.getElementById("policy_"+policyCount.toString()).name)) {
-	                    document.getElementById("policy_"+policyCount.toString()).checked = true;  
-	                    break;      
-	                }
-				}
-	
-	            policyCount++;
-			}
-		}
-		
-		
-		var apiServerTr = document.getElementsByName("_.apiServer")[0].parentNode.parentNode;		  
-		  
-		apiServerTr.style.display = 'none';
-		apiServerTr.next('tr').style.display = 'none';
+                for (i = policyCount - 1; i >= 0; i--) {
+                    if (document.getElementById("policy_" + i.toString()).checked == true) {
+                        selectedPolicy += document.getElementById("policy_" + i.toString()).name + ",,";
+                    }
+
+                }
+                if (selectedPolicy.length > 0) {
+                    selectedPolicy = selectedPolicy.substring(0, selectedPolicy.length - 2);
+                }
+                let encodedPolicyName = DOMPurify.sanitize(selectedPolicy);
+                document.getElementById("selectedPolicies").value = encodedPolicyName;
+
+            }
+
+            function updatePoliciesList() {
+                let optionProfileData = document.getElementById("optionProfile");
+                let optionProfileJson = JSON.parse(optionProfileData.value);
+                let policiesJson = optionProfileJson["policyDetails"];
+                var selectedPolicy = "";
+
+                var i;
+                var policyTable = document.getElementById("policyTable");
+                document.getElementById("policyTable").innerHTML = '';
+                policyCount = 0;
+
+                for (i in policiesJson) {
+                    selectedPolicy += policiesJson[i] + "::" + i + ",,";
+                    var row = policyTable.insertRow(0);
+                    var pName = policiesJson[i] + "::" + i;
+                    let encodedPolicyName = DOMPurify.sanitize(pName);
+                    row.innerHTML = '&lt;input type="checkbox" name="' + encodedPolicyName + '" id="policy_' + policyCount.toString() + '"> ' + DOMPurify.escape(DOMPurify.sanitize(i)) + '';
+                    document.getElementById("policy_" + policyCount.toString()).checked = true;
+                    policyCount++;
+
+                }
+                selectedPolicy = selectedPolicy.substring(0, selectedPolicy.length - 2);
+                document.getElementById("selectedPolicies").value = selectedPolicy;
+            }
+
+
+            function configClicked() {
+                if (this.attributes.id.value == checkbx2.attributes.id.value) {
+                    if (!checkbx2.checked) {
+                        checkbx2.checked = true;
+                        updateOptionalBlock(this, true);
+                    } else {
+                        checkbx1.checked = false;
+                        checkbx2.checked = true;
+                        updateOptionalBlock(checkbx1, true);
+                        //return false;
+                    }
+                }
+                if (this.attributes.id.value == checkbx1.attributes.id.value) {
+                    if (!checkbx1.checked) {
+                        checkbx1.checked = true;
+                        updateOptionalBlock(this, true);
+                    } else {
+                        checkbx2.checked = false;
+                        checkbx1.checked = true;
+                        updateOptionalBlock(checkbx2, true);
+                        //return false;
+                    }
+                }
+            } // End of configClicked
+
+
+            document.getElementsByName("useHost")[0].addEventListener("click", configClicked, true);
+            document.getElementsByName("useEc2")[0].addEventListener("click", configClicked, true);
+            document.getElementById("optionProfile").addEventListener("change", updatePoliciesList);
+            document.getElementById("policyTable").addEventListener("click", updatePolicyTable, true);
+
+            //For Policy List
+            function trimList(list) {
+                var i = 0;
+                var newList = [];
+                for (i = list.length - 1; i >= 0; i--) {
+                    if (list[i] != "") {
+                        newList.push(list[i].trim());
+                    }
+                }
+                return newList;
+            }
+
+            let optionProfileData = document.getElementById("optionProfile");
+            var i;
+
+            var selectedPoliciesData = document.getElementById("selectedPolicies");
+            var selectedPolicyList = trimList(selectedPoliciesData.value.split(",,"));
+
+            if (optionProfileData.value != "") {
+                let optionProfileJson = JSON.parse(optionProfileData.value);
+
+                let policiesJson = optionProfileJson["policyDetails"];
+
+                var policyTable = document.getElementById("policyTable");
+                document.getElementById("policyTable").innerHTML = '';
+                policyCount = 0;
+
+                for (i in policiesJson) {
+
+                    var row = policyTable.insertRow(0);
+                    var pName = policiesJson[i] + "::" + i;
+                    let encodedPolicyName = DOMPurify.sanitize(pName);
+                    row.innerHTML = '&lt;input type="checkbox" name="' + encodedPolicyName + '" id="policy_' + policyCount.toString() + '"> ' + DOMPurify.escape(DOMPurify.sanitize(i)) + '';
+
+                    //document.getElementById("policy_"+policyCount.toString()).selected = false;
+
+                    var j;
+                    for (j = selectedPolicyList.length - 1; j >= 0; j--) {
+                        if (selectedPolicyList[j].includes(document.getElementById("policy_" + policyCount.toString()).name)) {
+                            document.getElementById("policy_" + policyCount.toString()).checked = true;
+                            break;
+                        }
+                    }
+
+                    policyCount++;
+                }
+            }
+
+
+            var apiServerTr = document.getElementsByName("_.apiServer")[0].parentNode.parentNode;
+
+            apiServerTr.style.display = 'none';
+            apiServerTr.next('tr').style.display = 'none';
 
 	    document.getElementById("platform").onchange = function(){
 			if(this.value === "PCP"){
@@ -289,227 +290,265 @@
 				apiServerTr.next('tr').style.display = 'none';
 			}
 		}
-		
+
 		if(document.getElementById("platform").value == "PCP"){
 	    	apiServerTr.style.display = 'table-row';
 			apiServerTr.next().style.display='table-row';
 	    }
-		
-		
+
+
 	}; // End of docReady
-	
+
 	function excludeOptionChanged(){
 		document.getElementsByName("excludeList")[0].value = "";
 	}
-	
+
 	function cvssOptionChanged(){
 		document.getElementsByName("cvssBase")[0].value = "0.0";
 	}
-	
+
 	</script>
-    
+
     <!-- Qualys Logo Block -->
     <f:block>
-    	<div class="qualys_logo">
-			<img src="${resURL}/plugin/qualys-pc/images/logo.png"/>
-		</div>
+        <div class="qualys_logo">
+            <img src="${resURL}/plugin/qualys-pc/images/logo.png"/>
+        </div>
     </f:block>
-    
+
     <!-- API login section -->
-     <f:section title="API Login">
-    	<f:block> <div> &#160; &#160; Provide details for accessing the Qualys Policy Compliance(PC) API.  </div> <br /> </f:block>
-    		    <f:entry title="Your Qualys Portal:" field="platform" help="/plugin/qualys-pc/help/platform.html">
-	        <f:select name="platform" style="width: 50%;" id="platform" />
-	    </f:entry>
-    	
-	    <f:block >
-	    	<f:entry field="apiServer" title="API Server URL:" help="/plugin/qualys-pc/help/apiServer.html">
-		        <f:textbox  style="width: 50%;" id="apiServer" />
-		    </f:entry>  		
-		</f:block >
-		
-	    <f:entry field="credsId" title="* ${%Credentials:}" help="/plugin/qualys-pc/help/credentialsId.html">
-			<c:select id="credsId" />
-		</f:entry>
-	    
-	    <f:optionalBlock name="useProxy" title="Use Proxy Settings" field="useProxy" inline="true">
-	    	<f:block> 
-	    		<div style="margin-left:30px;">
-			    	<f:entry title="* Proxy Server:" field="proxyServer" description="Examples: 10.15.201.155, corp.proxyserver.company.com" help="/plugin/qualys-pc/help/proxyServer.html" >
-			        	<f:textbox style="width: 50%; min-width: 320px;" id="proxyServer" />
-			    	</f:entry>
-			    	<f:entry title="* Proxy Port:" default="80" field="proxyPort" help="/plugin/qualys-pc/help/proxyPort.html">
-			        	<f:textbox style="width: 50%; min-width: 80px;" id="proxyPort" />
-			    	</f:entry>			    	
-			    	<f:entry field="proxyCredentialsId" title="* ${%Credentials:}" help="/plugin/qualys-pc/help/proxyCredentialsId.html">
-						<c:select id="proxyCredentialsId" />
-					</f:entry>
-		    	</div>
-		    </f:block> 
-	    </f:optionalBlock>
-	    
-	    <f:validateButton title="Test Connection" progress="Testing..." method="checkConnection" with="platform,apiServer,credsId,proxyServer,proxyPort,proxyCredentialsId,useProxy"/>
-	</f:section>
-	
-	<!-- Launch Scan API Parameters section -->
+    <f:section title="API Login">
+        <f:block>
+            <div>&#160; &#160; Provide details for accessing the Qualys Policy Compliance(PC) API.</div>
+            <br/>
+        </f:block>
+        <f:entry title="Your Qualys Portal:" field="platform" help="/plugin/qualys-pc/help/platform.html">
+            <f:select name="platform" style="width: 50%;" id="platform"/>
+        </f:entry>
+
+        <f:block>
+            <f:entry field="apiServer" title="API Server URL:" help="/plugin/qualys-pc/help/apiServer.html">
+                <f:textbox style="width: 50%;" id="apiServer"/>
+            </f:entry>
+        </f:block>
+
+        <f:entry field="credsId" title="* ${%Credentials:}" help="/plugin/qualys-pc/help/credentialsId.html">
+            <c:select id="credsId"/>
+        </f:entry>
+
+        <f:optionalBlock name="useProxy" title="Use Proxy Settings" field="useProxy" inline="true">
+            <f:block>
+                <div style="margin-left:30px;">
+                    <f:entry title="* Proxy Server:" field="proxyServer"
+                             description="Examples: 10.15.201.155, corp.proxyserver.company.com"
+                             help="/plugin/qualys-pc/help/proxyServer.html">
+                        <f:textbox style="width: 50%; min-width: 320px;" id="proxyServer"/>
+                    </f:entry>
+                    <f:entry title="* Proxy Port:" default="80" field="proxyPort"
+                             help="/plugin/qualys-pc/help/proxyPort.html">
+                        <f:textbox style="width: 50%; min-width: 80px;" id="proxyPort"/>
+                    </f:entry>
+                    <f:entry field="proxyCredentialsId" title="* ${%Credentials:}"
+                             help="/plugin/qualys-pc/help/proxyCredentialsId.html">
+                        <c:select id="proxyCredentialsId"/>
+                    </f:entry>
+                </div>
+            </f:block>
+        </f:optionalBlock>
+
+        <f:validateButton title="Test Connection" progress="Testing..." method="checkConnection"
+                          with="platform,apiServer,credsId,proxyServer,proxyPort,proxyCredentialsId,useProxy"/>
+    </f:section>
+
+    <!-- Launch Scan API Parameters section -->
     <f:section title="Scan Options">
-    	<f:block> 
-    		<div>&#160; &#160; Provide information required to launch the scan</div>
-    	</f:block>
-    	 <br />
-    	<f:entry title="* Scan Title:" field="scanName" help="/plugin/qualys-pc/help/scanTitle.html">
-	        <f:textbox style="min-width: 320px;" default="[job_name]_jenkins_build_[build_number]" />
-	    </f:entry>
-	    <f:block>
-	    	<br/>
-			<div>Target</div>
-	    	<br/>  
-		    <f:optionalBlock id="useHost" name="useHost" field="useHost" title="Scan Host IP" inline="true">
-		    	<f:block> 
-		    		<div style="margin-left:30px;">
-		    			<f:block> 
-					    	<f:entry field="hostIp" title="* IP:" help="/plugin/qualys-pc/help/hostIp.html">
-				        		<f:textbox id="hostIp" default="0.0.0.0"/>
-				   			</f:entry>
-			   			</f:block>
-			    	</div>
-			    </f:block> 
-			 </f:optionalBlock>
-			     
-		    <f:optionalBlock name="useEc2" field="useEc2" title="Scan EC2 instance" inline="true">		    	
-		    	<f:block> 
-			    	<div style="margin-left:30px;">
-				    	<f:entry field="ec2Id" title="* EC2 Instance Id:" help="/plugin/qualys-pc/help/ec2Id.html">
-			        		<f:textbox id="ec2Id" default="Provide Instance Id"/>
-			   			</f:entry>
-			   			<f:entry field="ec2ConnDetails" title="* EC2 Connector Name:" help="/plugin/qualys-pc/help/ec2ConnName.html">
-			        		<f:select fillDependsOn="useEc2 apiServer credsId" style="width: 100%; min-width: 100%;" />
-			    		</f:entry>
-			    		<f:entry help="/plugin/qualys-pc/help/runConnector.html">
-		    				<f:checkbox field="runConnector" title="Run selected EC2 connector"/>
-		    			</f:entry>
-				    </div>				    
-				</f:block>
-	    	</f:optionalBlock>
-	    	
-	    	<f:block>
-	    	<br/>
-	    	<br/>
-	    	</f:block>
-		    
-		    <f:optionalBlock name="createAuthRecord" title="Create Authentication Record" field="createAuthRecord" inline="true" help="/plugin/qualys-pc/help/createAuthRecord.html">
-	    	<f:block> 
-	    		<div style="margin-left:30px;">
-		    		<f:entry title="Platform:" field="unixAndWindowsCredentials" name="unixAndWindowsCredentials">
-		    			<f:select id="unixAndWindowsCredentials" style="width: 30%; min-width: 30%;" />
-		    		</f:entry>
-					<f:entry field="unixAndWindowsCredentialsId" name="unixAndWindowsCredentialsId" title="${%Credentials:}">
-						<c:select id="unixAndWindowsCredentialsId" />
-					</f:entry>
-		    	</div>
-		    </f:block> 
-	    	</f:optionalBlock>
-		    
-		    <f:block> 
-	   			<f:entry title="* Scanner Name:" field="scannerName" help="/plugin/qualys-pc/help/scannerName.html">
-	    			<f:select fillDependsOn="apiServer credsId useEc2 useHost" style="width: 100%; min-width: 100%;" />
-	    		</f:entry>
-	   		</f:block>
-	    	<f:block>
-		    	<f:entry title="* Option Profile:" field="optionProfile" name="optionProfile" help="/plugin/qualys-pc/help/optionProfile.html">
-			        <f:select id="optionProfile" fillDependsOn="apiServer credsId" style="width: 100%; min-width: 100%;" />
-			    </f:entry>
-		    </f:block>
-		    
-		</f:block>
-		<f:block>
-		    <div id="selectPolicies" class="conditionTitle"><b>
-				Select One or More Policies
-			</b><br></br>
-				Select one or more desired policies for the PC scan. Qualys PC Scanning connector will evaluate result only for selected policies.
-            <div class="policyTableClass">
-                <table name="policyTable" id="policyTable"></table>
+        <f:block>
+            <div>&#160; &#160; Provide information required to launch the scan</div>
+        </f:block>
+        <br/>
+        <f:entry title="* Scan Title:" field="scanName" help="/plugin/qualys-pc/help/scanTitle.html">
+            <f:textbox style="min-width: 320px;" default="[job_name]_jenkins_build_[build_number]"/>
+        </f:entry>
+        <f:block>
+            <br/>
+            <div>Target</div>
+            <br/>
+            <f:optionalBlock id="useHost" name="useHost" field="useHost" title="Scan Host IP" inline="true">
+                <f:block>
+                    <div style="margin-left:30px;">
+                        <f:block>
+                            <f:entry field="hostIp" title="* IP:" help="/plugin/qualys-pc/help/hostIp.html">
+                                <f:textbox id="hostIp" default="0.0.0.0"/>
+                            </f:entry>
+                        </f:block>
+                    </div>
+                </f:block>
+            </f:optionalBlock>
+
+            <f:optionalBlock name="useEc2" field="useEc2" title="Scan EC2 instance" inline="true">
+                <f:block>
+                    <div style="margin-left:30px;">
+                        <f:entry field="ec2Id" title="* EC2 Instance Id:" help="/plugin/qualys-pc/help/ec2Id.html">
+                            <f:textbox id="ec2Id" default="Provide Instance Id"/>
+                        </f:entry>
+                        <f:entry field="ec2ConnDetails" title="* EC2 Connector Name:"
+                                 help="/plugin/qualys-pc/help/ec2ConnName.html">
+                            <f:select fillDependsOn="useEc2 apiServer credsId" style="width: 100%; min-width: 100%;"/>
+                        </f:entry>
+                        <f:entry help="/plugin/qualys-pc/help/runConnector.html">
+                            <f:checkbox field="runConnector" title="Run selected EC2 connector"/>
+                        </f:entry>
+                    </div>
+                </f:block>
+            </f:optionalBlock>
+
+            <f:block>
+                <br/>
+                <br/>
+            </f:block>
+
+            <f:optionalBlock name="createAuthRecord" title="Create Authentication Record" field="createAuthRecord"
+                             inline="true" help="/plugin/qualys-pc/help/createAuthRecord.html">
+                <f:block>
+                    <div style="margin-left:30px;">
+                        <f:entry title="Platform:" field="unixAndWindowsCredentials" name="unixAndWindowsCredentials">
+                            <f:select id="unixAndWindowsCredentials" style="width: 30%; min-width: 30%;"/>
+                        </f:entry>
+                        <f:entry field="unixAndWindowsCredentialsId" name="unixAndWindowsCredentialsId"
+                                 title="${%Credentials:}">
+                            <c:select id="unixAndWindowsCredentialsId"/>
+                        </f:entry>
+                    </div>
+                </f:block>
+            </f:optionalBlock>
+
+            <f:block>
+                <f:entry title="* Scanner Name:" field="scannerName" help="/plugin/qualys-pc/help/scannerName.html">
+                    <f:select fillDependsOn="apiServer credsId useEc2 useHost" style="width: 100%; min-width: 100%;"/>
+                </f:entry>
+            </f:block>
+            <f:block>
+                <f:entry title="* Option Profile:" field="optionProfile" name="optionProfile"
+                         help="/plugin/qualys-pc/help/optionProfile.html">
+                    <f:select id="optionProfile" fillDependsOn="apiServer credsId"
+                              style="width: 100%; min-width: 100%;"/>
+                </f:entry>
+            </f:block>
+
+        </f:block>
+        <f:block>
+            <div id="selectPolicies" class="conditionTitle">
+                <b>
+                    Select One or More Policies
+                </b>
+                <br></br>
+                Select one or more desired policies for the PC scan. Qualys PC Scanning connector will evaluate result
+                only for selected policies.
+                <div class="policyTableClass">
+                    <table name="policyTable" id="policyTable"></table>
+                </div>
+                <f:invisibleEntry>
+                    <f:textbox id="selectedPolicies" field="selectedPolicies"/>
+                </f:invisibleEntry>
             </div>
-			<f:invisibleEntry>
-		    	<f:textbox id="selectedPolicies" field="selectedPolicies" />
-		    </f:invisibleEntry>
-			</div>
-    	</f:block>
-	</f:section>
-	
-	 <f:section title="Configure Scan Pass/Fail Criteria">		
-		<f:block>
-			<div>&#160; &#160; Set the conditions to fail the build job. The build will fail when ANY of the conditions are met. </div> <br />
-		</f:block>
-			
+        </f:block>
+    </f:section>
 
-		<f:optionalBlock id="failByStateAndCriticality" name="failByStateAndCriticality" title="Fail by State AND Criticality" help="/plugin/qualys-pc/help/failByStateAndCriticality.html" field="failByStateAndCriticality" default="true" inline="true">
-			<f:block>
-			    <div id="byState" class="failConditionTitle">By State</div>
-				
-				<f:block>
-			      	<div class="failConditionValues">					      
-				      <f:checkbox field="stateFail" title="Fail" default="true"/>
-						&#160; <f:checkbox field="stateError" title="Error" />
-						&#160; <f:checkbox field="stateExceptions" title="Exceptions" />
-				    </div>	
-			    </f:block>			      	
-			</f:block>
-			
-			<f:block>
-			    <div id="byCriticality" class="failConditionTitle">By Criticality</div>
-				
-				<f:block>
-			      	<div class="failConditionValues">					      
-				      <f:checkbox field="criticalitySerious" title="Serious" default="true"/>
-						&#160; <f:checkbox field="criticalityUrgent" title="Urgent" default="true"/>
-						&#160; <f:checkbox field="criticalityCritical" title="Critical" default="true"/>
-						&#160; <f:checkbox field="criticalityMedium" title="Medium" default="true"/>
-						&#160; <f:checkbox field="criticalityMinimal" title="Minimal" default="true"/>
-				    </div>
-				</f:block>				      	
-			</f:block>
-			<f:entry>
-		    </f:entry>
-		</f:optionalBlock>
-		
-		<f:optionalBlock name="failByAuth" title="Fail if Authentication Fails on Host/EC2 Instance" field="failByAuth" inline="true" help="/plugin/qualys-pc/help/failByAuth.html">
-		</f:optionalBlock>
+    <f:section title="Configure Scan Pass/Fail Criteria">
+        <f:block>
+            <div>&#160; &#160; Set the conditions to fail the build job. The build will fail when ANY of the conditions
+                are met.
+            </div>
+            <br/>
+        </f:block>
 
-		<f:optionalBlock name="excludedCriteria" title="Exclude Conditions" field="excludedCriteria" inline="true" help="/plugin/qualys-pc/help/excludedCriteria.html">
-	      	<f:block>
-		      	<f:entry field="excludedCids" title="&#160; &#160; &#160; &#160; Exclude these CIDs from criteria evaluation">
-		      		<f:textbox  style="width:70%; min-width:100px; max-width:800px;" />
-		      	</f:entry>
-			</f:block>
-		</f:optionalBlock>
-	</f:section>
-	<!-- Timeout Settings section -->
-	<f:section title="Timeout Settings">	
-	 	
-	    <f:block> 
-	    	<div>&#160; &#160;Qualys PC Scan results will be collected per these settings. For each enter a value in minutes or an expression like 2*60 for 2 hours. <br /> </div> 
-		    <f:block>
-				<div class="failConditionTitle" style="margin-top:5px;"> Frequency</div>
-			</f:block>
-		    <f:entry title="&#160; &#160; &#160; &#160; &#160; &#160; How often to check for scan result" field="pollingInterval" help="/plugin/qualys-pc/help/polling.html">
-			    <f:textbox style="width: 15%;" default="2"/> minutes.
-			</f:entry>
-			
-			<f:block>
-				<div class="failConditionTitle"> Timeout</div>
-			</f:block>
-		    <f:entry title="&#160; &#160; &#160; &#160; &#160; &#160; How long to wait for scan result" field="vulnsTimeout" help="/plugin/qualys-pc/help/timeout.html">
-			    <f:textbox style="width: 15%;" default="60*2"/> minutes.
-			</f:entry>			
-		</f:block>
-	
-		
-	    <f:block>
-	    	<div class="hidden" style="visibility:hidden">
-				<img src="${resURL}/plugin/qualys-pc/images/logo.png" onload="docReady()"/>
-			</div>
-    	</f:block>
 
-	</f:section>
+        <f:optionalBlock id="failByStateAndCriticality" name="failByStateAndCriticality"
+                         title="Fail by State AND Criticality"
+                         help="/plugin/qualys-pc/help/failByStateAndCriticality.html" field="failByStateAndCriticality"
+                         default="true" inline="true">
+            <f:block>
+                <div id="byState" class="failConditionTitle">By State</div>
+
+                <f:block>
+                    <div class="failConditionValues">
+                        <f:checkbox field="stateFail" title="Fail" default="true"/>
+                        &#160;
+                        <f:checkbox field="stateError" title="Error"/>
+                        &#160;
+                        <f:checkbox field="stateExceptions" title="Exceptions"/>
+                    </div>
+                </f:block>
+            </f:block>
+
+            <f:block>
+                <div id="byCriticality" class="failConditionTitle">By Criticality</div>
+
+                <f:block>
+                    <div class="failConditionValues">
+                        <f:checkbox field="criticalitySerious" title="Serious" default="true"/>
+                        &#160;
+                        <f:checkbox field="criticalityUrgent" title="Urgent" default="true"/>
+                        &#160;
+                        <f:checkbox field="criticalityCritical" title="Critical" default="true"/>
+                        &#160;
+                        <f:checkbox field="criticalityMedium" title="Medium" default="true"/>
+                        &#160;
+                        <f:checkbox field="criticalityMinimal" title="Minimal" default="true"/>
+                    </div>
+                </f:block>
+            </f:block>
+            <f:entry>
+            </f:entry>
+        </f:optionalBlock>
+
+        <f:optionalBlock name="failByAuth" title="Fail if Authentication Fails on Host/EC2 Instance" field="failByAuth"
+                         inline="true" help="/plugin/qualys-pc/help/failByAuth.html">
+        </f:optionalBlock>
+
+        <f:optionalBlock name="excludedCriteria" title="Exclude Conditions" field="excludedCriteria" inline="true"
+                         help="/plugin/qualys-pc/help/excludedCriteria.html">
+            <f:block>
+                <f:entry field="excludedCids"
+                         title="&#160; &#160; &#160; &#160; Exclude these CIDs from criteria evaluation">
+                    <f:textbox style="width:70%; min-width:100px; max-width:800px;"/>
+                </f:entry>
+            </f:block>
+        </f:optionalBlock>
+    </f:section>
+    <!-- Timeout Settings section -->
+    <f:section title="Timeout Settings">
+
+        <f:block>
+            <div>&#160; &#160;Qualys PC Scan results will be collected per these settings. For each enter a value in
+                minutes or an expression like 2*60 for 2 hours.
+                <br/>
+            </div>
+            <f:block>
+                <div class="failConditionTitle" style="margin-top:5px;">Frequency</div>
+            </f:block>
+            <f:entry title="&#160; &#160; &#160; &#160; &#160; &#160; How often to check for scan result"
+                     field="pollingInterval" help="/plugin/qualys-pc/help/polling.html">
+                <f:textbox style="width: 15%;" default="2"/>
+                minutes.
+            </f:entry>
+
+            <f:block>
+                <div class="failConditionTitle">Timeout</div>
+            </f:block>
+            <f:entry title="&#160; &#160; &#160; &#160; &#160; &#160; How long to wait for scan result"
+                     field="vulnsTimeout" help="/plugin/qualys-pc/help/timeout.html">
+                <f:textbox style="width: 15%;" default="60*2"/>
+                minutes.
+            </f:entry>
+        </f:block>
+
+
+        <f:block>
+            <div class="hidden" style="visibility:hidden">
+                <img src="${resURL}/plugin/qualys-pc/images/logo.png" onload="docReady()"/>
+            </div>
+        </f:block>
+
+    </f:section>
 </j:jelly>

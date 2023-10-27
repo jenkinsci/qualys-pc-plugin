@@ -1,18 +1,9 @@
 package com.qualys.plugins.pc.client;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.qualys.plugins.pc.auth.QualysAuth;
-
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import java.io.*;
 import hudson.AbortException;
 import hudson.model.TaskListener;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -20,9 +11,28 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import java.io.*;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.Base64;
@@ -31,14 +41,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 public class QualysPCClient extends QualysBaseClient {
 	HashMap<String, String> apiMap;
+	HashMap<String, String> dtdMap;
 	Logger logger = Logger.getLogger(QualysPCClient.class.getName());
 	private static String conRefuse = " Error: Connection refused, contact service provider.";
 	private static String exceptionWhileTorun = "Exception to run";
@@ -57,17 +63,20 @@ public class QualysPCClient extends QualysBaseClient {
 	public QualysPCClient(QualysAuth auth) {
 		super(auth, System.out);
 		this.populateApiMap();
+		this.populateApiDtd();
 	}
 
 	public QualysPCClient(QualysAuth auth, PrintStream stream) {
 		super(auth, stream);
 		this.populateApiMap();
+		this.populateApiDtd();
 	}
 
 	public QualysPCClient(QualysAuth auth, PrintStream stream, int pollingInterval, int vulTimeout,
 			TaskListener listener) {
 		super(auth, stream);
 		this.populateApiMap();
+		this.populateApiDtd();
 		this.pollingIntervalForVulns = pollingInterval;
 		this.vulnsTimeout = vulTimeout;
 		this.listener = listener;
@@ -107,8 +116,31 @@ public class QualysPCClient extends QualysBaseClient {
 
 		this.apiMap.put("updatePolicies", "/api/2.0/fo/compliance/policy/?action=add_asset_group_ids"); // [POST]
 
-		this.apiMap.put("getInstanceState",
-				"/qps/rest/2.0/search/am/hostasset?fields=sourceInfo.list.Ec2AssetSourceSimple.instanceState,sourceInfo.list.Ec2AssetSourceSimple.region,sourceInfo.list.Ec2AssetSourceSimple.privateIpAddress"); // [POST]
+		this.apiMap.put("getInstanceState", "/qps/rest/2.0/search/am/hostasset?fields=sourceInfo.list.Ec2AssetSourceSimple.instanceState,sourceInfo.list.Ec2AssetSourceSimple.region,sourceInfo.list.Ec2AssetSourceSimple.privateIpAddress"); // [POST]
+	} // End of populateApiMap method
+	private void populateApiDtd() {
+		this.dtdMap = new HashMap<>();
+		// Ref - https://www.qualys.com/docs/qualys-api-vmpc-user-guide.pdf
+		this.dtdMap.put("aboutDotPhp", "/about.dtd");
+		this.dtdMap.put("optionProfilesPc", "/api/2.0/fo/subscription/option_profile/option_profile_info.dtd"); //
+		this.dtdMap.put("scannerName", "/api/2.0/fo/appliance/appliance_list_output.dtd"); // [GET]]
+		this.dtdMap.put("OPTION_PROFILES", "/api/2.0/fo/subscription/option_profile/option_profile_info.dtd"); // [GET]
+		this.dtdMap.put("SIMPLE_RETURN", "/api/2.0/simple_return.dtd"); // [POST]
+		this.dtdMap.put("pCScansList", "/api/2.0/fo/scan/compliance/compliance_scan_result_output.dtd"); // [POST]
+		this.dtdMap.put("getConnector", "/qps/xsd/2.0/am/aws_asset_data_connector.xsd");
+		this.dtdMap.put("getInstanceState", "/qps/xsd/2.0/am/hostasset.xsd");
+		this.dtdMap.put("getReportResult", "/api/2.0/fo/compliance/posture/info/posture_info_list_output.dtd"); // [POST]
+		this.dtdMap.put("SCAN_LIST_OUTPUT", "https://qualysapi.qg2.apps.qualys.eu/api/2.0/fo/scan/scan_list_output.dtd"); /// [GET][POST]
+		this.dtdMap.put("addHost", "/api/2.0/fo/asset/ip/ip_list_output.dtd"); // [POST]
+		this.dtdMap.put("AUTH_WINDOWS_LIST_OUTPUT", "/api/2.0/fo/auth/windows/dtd/auth_list_output.dtd"); // [POST]
+		this.dtdMap.put("listWindowsAuthRecord", "/api/2.0/fo/auth/windows/batch_return.dtd"); // [POST]
+		this.dtdMap.put("listUnixAuthRecord", "/api/2.0/fo/auth/unix/dtd/auth_list_output.dtd"); // [POST]
+		this.dtdMap.put("BATCH_RETURN", "/api/2.0/batch_return.dtd"); // [POST]
+		this.dtdMap.put("listAssetGroup", "/api/2.0/fo/asset/group/asset_group_list_output.dtd"); // [POST]
+		this.dtdMap.put("updatePolicies", "/api/2.0/fo/compliance/policy/policy_list_output.dtd"); // [POST]
+		this.dtdMap.put("POLICY_EXPORT_OUTPUT", "/api/2/fo/compliance/policy/policy_export_output.dtd"); // [POST]
+		this.dtdMap.put("POLICY_MERGE_RESULT_OUTPUT", "/api/2.0/fo/compliance/policy/policy_merge_result_output.dtd"); // [POST]
+
 	} // End of populateApiMap method
 
 	/* API calling methods */
@@ -124,9 +156,9 @@ public class QualysPCClient extends QualysBaseClient {
 			while (retry < 3) {
 				logger.info("Retrying Scanner Name API call: " + retry);
 				if (useHost) {
-					resp = this.get(this.apiMap.get("scannerName"), false);
+					resp = this.get(this.apiMap.get("scannerName"), false,this.dtdMap.get("scannerName"),true);
 				} else {
-					resp = this.get(this.apiMap.get("ec2ScannerName"), false);
+					resp = this.get(this.apiMap.get("ec2ScannerName"), false,this.dtdMap.get("scannerName"),true);
 				}
 				logger.info("Response code received for Scanner Name API call:" + resp.getResponseCode());
 				response = resp.getResponseXml();
@@ -182,78 +214,78 @@ public class QualysPCClient extends QualysBaseClient {
 	}// End of optionProfiles
 
 	public QualysPCResponse updatePolicies(String apiParams) throws Exception {
-		return this.post(this.apiMap.get("updatePolicies") + apiParams, "", "");
+		return this.post(this.apiMap.get("updatePolicies") + apiParams, "", "",this.dtdMap.get("updatePolicies"),true);
 	} // End of updatePolicies
 
 	public QualysPCResponse updateAssetGroup(String assetGroupId, String ipAddress) throws Exception {
 		String apiParams = "&id=" + assetGroupId + "&set_ips=" + ipAddress;
-		return this.post(this.apiMap.get("updateAssetGroup") + apiParams, "", "");
+		return this.post(this.apiMap.get("updateAssetGroup") + apiParams, "", "",this.dtdMap.get("listAssetGroup"),true);
 	} // End of updateAssetGroup
 
 	public QualysPCResponse listAssetGroup(String apiParams) throws Exception {
-		return this.post(this.apiMap.get("listAssetGroup") + apiParams, "", "");
+		return this.post(this.apiMap.get("listAssetGroup") + apiParams, "", "",this.dtdMap.get("listAssetGroup"),true);
 	} // End of listAssetGroup
 
 	public QualysPCResponse createAssetGroup(String job_name, String ipAddress) throws Exception {
 		String apiParams = "&title=Jenkins_AG_" + job_name + "&ips=" + ipAddress;
-		return this.post(this.apiMap.get("createAssetGroup") + apiParams, "", "");
+		return this.post(this.apiMap.get("createAssetGroup") + apiParams, "", "",this.dtdMap.get("listAssetGroup"),true);
 	} // End of createAssetGroup
 
 	public QualysPCResponse updateWindowsAuthRecord(String apiParams, String recordId) throws Exception {
 		apiParams = apiParams + "&ids=" + recordId;
-		return this.post(this.apiMap.get("updateWindowsRecord") + apiParams, "", "");
+		return this.post(this.apiMap.get("updateWindowsRecord") + apiParams, "", "",this.dtdMap.get("listWindowsAuthRecord"),true);
 	} // End of updateWindowsAuthRecord
 
 	public QualysPCResponse updateUnixAuthRecord(String apiParams, String recordId) throws Exception {
 		apiParams = apiParams + "&ids=" + recordId;
-		return this.post(this.apiMap.get("updateUnixRecord") + apiParams, "", "");
+		return this.post(this.apiMap.get("updateUnixRecord") + apiParams, "", "",this.dtdMap.get("listUnixAuthRecord"),true);
 	} // End of createUnixAuthRecord
 
 	public QualysPCResponse createUnixAuthRecord(String apiParams, String job_name) throws Exception {
 		apiParams = apiParams + "&title=Jenkins_Unix_" + job_name;
-		return this.post(this.apiMap.get("addUnixRecord") + apiParams, "", "");
+		return this.post(this.apiMap.get("addUnixRecord") + apiParams, "", "",this.dtdMap.get("listUnixAuthRecord"),true);
 	} // End of createUnixAuthRecord
 
 	public QualysPCResponse createWindowsAuthRecord(String apiParams, String job_name) throws Exception {
 		apiParams = apiParams + "&title=Jenkins_Windows_" + job_name;
-		return this.post(this.apiMap.get("addWindowsRecord") + apiParams, "", "");
+		return this.post(this.apiMap.get("addWindowsRecord") + apiParams, "", "",this.dtdMap.get("listWindowsAuthRecord"),true);
 	} // End of createUnixAuthRecord
 
 	public QualysPCResponse listUnixAuthRecord(String title) throws Exception {
-		return this.post(this.apiMap.get("listUnixAuthRecord") + "&title=" + title, "", "");
+		return this.post(this.apiMap.get("listUnixAuthRecord") + "&title=" + title, "", "",this.dtdMap.get("listUnixAuthRecord"),true);
 	} // End of listUnixAuthRecord
 
 	public QualysPCResponse listWindowsAuthRecord(String title) throws Exception {
-		return this.post(this.apiMap.get("listWindowsAuthRecord") + "&title=" + title, "", "");
+		return this.post(this.apiMap.get("listWindowsAuthRecord") + "&title=" + title, "", "",this.dtdMap.get("listWindowsAuthRecord"),true);
 	} // End of listWindowsAuthRecord
 
 	public QualysPCResponse addHost(String ip) throws Exception {
-		return this.post(this.apiMap.get("addHost") + "&ips=" + ip, "", "");
+		return this.post(this.apiMap.get("addHost") + "&ips=" + ip, "", "",this.dtdMap.get("addHost"),true);
 	} // End of addHost
 
 	public QualysPCResponse launchPcScan(String requestData) throws Exception {
-		return this.post(this.apiMap.get("launchPCScan"), requestData, "");
+		return this.post(this.apiMap.get("launchPCScan"), requestData, "",this.dtdMap.get("pCScansList"),true);
 	} // End of launchPcScan
 
 	public QualysPCResponse cancelPcScan(String scanRef) throws Exception {
-		return this.post(this.apiMap.get("cancelPcScan") + "&scan_ref=" + scanRef, "", "");
+		return this.post(this.apiMap.get("cancelPcScan") + "&scan_ref=" + scanRef, "", "",this.dtdMap.get("pCScansList"),true);
 	} // End of cancelVmScan
 
 	public QualysPCResponse pCScansList(String statusId) throws Exception {
-		return this.get(this.apiMap.get("pCScansList") + "&scan_ref=" + statusId, false);
+		return this.get(this.apiMap.get("pCScansList") + "&scan_ref=" + statusId, false,this.dtdMap.get("pCScansList"),true);
 	} // End of vMScansList
 
 	public QualysPCResponse getReportResult(String apiParams) throws Exception {
-		return this.post(this.apiMap.get("getReportResult") + apiParams, "", "");
+		return this.post(this.apiMap.get("getReportResult") + apiParams, "", "",this.dtdMap.get("getReportResult"),true);
 	} // End of getReportResult
 
 	public QualysPCResponse getPCScanResult(String scanRef) throws Exception {
-		return this.post(this.apiMap.get("getScanResult") + "&scan_ref=" + scanRef, "", "");
+		return this.post(this.apiMap.get("getScanResult") + "&scan_ref=" + scanRef, "", "",this.dtdMap.get("pCScansList"),true);
 	} // End of getPCScanResult
 
 	// for pcp
 	public QualysPCResponse aboutDotPhp() throws Exception {
-		return this.get(this.apiMap.get("aboutDotPhp"), false);
+		return this.get(this.apiMap.get("aboutDotPhp"), false,this.dtdMap.get("aboutDotPhp"),true);
 	} // End of aboutDotPhp
 
 	// for pcp
@@ -434,7 +466,7 @@ public class QualysPCClient extends QualysBaseClient {
 		try {
 			while (retry < 3) {
 				logger.info("Retrying Connector Name API call: " + retry);
-				resp = this.post(this.apiMap.get("getConnector"), "", "");
+				resp = this.post(this.apiMap.get("getConnector"), "", "",this.dtdMap.get("getConnector"),false);
 				logger.info("Response code received for Connector Name API call:" + resp.getResponseCode());
 				response = resp.getResponseXml();
 				if (resp != null && resp.getResponseCode() == 200) {
@@ -539,7 +571,7 @@ public class QualysPCClient extends QualysBaseClient {
 		try {
 			while (retry < 3) {
 				logger.info("Retrying run Connector API call: " + retry);
-				resp = this.post(this.apiMap.get("runConnector") + "/" + connId, "", "");
+				resp = this.post(this.apiMap.get("runConnector") + "/" + connId, "", "",this.dtdMap.get("getConnector"),false);
 				logger.info("Response code received for run Connector API call:" + resp.getResponseCode());
 				response = resp.getResponseXml();
 				connectorState.addProperty("request", resp.getRequest());
@@ -601,7 +633,7 @@ public class QualysPCClient extends QualysBaseClient {
 		try {
 			while (retry < 3) {
 				logger.info("Retrying to get the Connector Status API call: " + retry);
-				resp = this.get(this.apiMap.get("getConnectorStatus") + "/" + connId2, false);
+				resp = this.get(this.apiMap.get("getConnectorStatus") + "/" + connId2, false,this.dtdMap.get("getConnector"),false);
 				logger.info("Response code received for run Connector API call:" + resp.getResponseCode());
 				response = resp.getResponseXml();
 				connectorState.addProperty("request", resp.getRequest());
@@ -673,7 +705,7 @@ public class QualysPCClient extends QualysBaseClient {
 		try {
 			while (retry < 3) {
 				logger.info("Retrying to get the instance state API call: " + retry);
-				resp = this.post(this.apiMap.get("getInstanceState"), "", xmlReqData);
+				resp = this.post(this.apiMap.get("getInstanceState"), "", xmlReqData,this.dtdMap.get("getInstanceState"),false);
 				logger.info("Response code received for instance state API call:" + resp.getResponseCode());
 				response = resp.getResponseXml();
 				state.addProperty("request", resp.getRequest());
@@ -763,9 +795,23 @@ public class QualysPCClient extends QualysBaseClient {
 	// End of API calling methods
 
 	// Do a [GET] call
-	private QualysPCResponse get(String apiPath, Boolean getJson) throws Exception {
+	private QualysPCResponse get(String apiPath, Boolean getJson,String metaDataUrl,Boolean isDtd) throws Exception {
 		QualysPCResponse apiResponse = new QualysPCResponse();
 		String apiResponseString = "";
+		URL metaURL = null;
+		ResponseEntity<String> metaResponseEntity = null;
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		RestTemplate restTemplate = new RestTemplate();
+		try {
+			if(!getJson && metaDataUrl != null) {
+				metaURL = this.getAbsoluteUrl(metaDataUrl);
+				metaResponseEntity = restTemplate.getForEntity(metaURL.toString(), String.class);
+			}
+		}
+		catch (Exception e) {
+			throw new Exception("Request :"+metaURL+ ": is failed");
+		}
 
 		try (CloseableHttpClient httpclient = this.getHttpClient()){
 			URL url = this.getAbsoluteUrl(apiPath);
@@ -827,10 +873,35 @@ public class QualysPCClient extends QualysBaseClient {
 					}
 					apiResponse.setResponse(finalResult.getAsJsonObject());
 				} else {
-					apiResponse.setResponseXml(getDoc(response));
-				} // End of inner if-else
-			} // End of If
-		} catch (SocketException e) {
+
+					apiResponseString = getresponseString(response);
+					if (metaDataUrl != null) {
+						if (isDtd) {
+							if (metaResponseEntity.getStatusCode() == HttpStatus.OK) {
+								String dtdResponse = metaResponseEntity.getBody();
+								XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+								xmlReader.setFeature("http://xml.org/sax/features/validation", true);
+								xmlReader.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader(dtdResponse)));
+								xmlReader.setContentHandler(new DefaultHandler());
+								xmlReader.parse(new InputSource(new StringReader(apiResponseString)));
+							}
+
+						} else {
+							SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+							Schema schema = schemaFactory.newSchema(new StreamSource(metaResponseEntity.getBody()));
+							Validator validator = schema.newValidator();
+							validator.validate(new StreamSource(apiResponseString));
+						}
+					}
+					apiResponse.setResponseXml(getDoc(apiResponseString));
+
+				} // End of If
+			}
+		}catch (SAXException e){
+		System.err.println("XML validation failed: "+e.getMessage());
+		throw new Exception("XML validation failed:");
+		}
+		catch (SocketException e) {
 			String errorMessage = "Error testing connection; SocketException; Invalid inputs or something went wrong with server. Please check API server and/or proxy details.";
 			logger.info(errorMessage+ " "+ e.getMessage());
 			throw new Exception(errorMessage);
@@ -860,11 +931,24 @@ public class QualysPCClient extends QualysBaseClient {
 	} // End of QualysPCResponse get() method
 
 	// Do a [POST] call
-	private QualysPCResponse post(String apiPath, String requestData, String requestXmlString) throws Exception {
+	private QualysPCResponse post(String apiPath, String requestData, String requestXmlString,String metaDataUrl,Boolean isDtd) throws Exception {
 		QualysPCResponse apiResponse = new QualysPCResponse();
 		String apiResponseString = "";
 		String uri = null;
-
+		URL metaURL = null;
+		ResponseEntity<String> metaResponseEntity = null;
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		RestTemplate restTemplate = new RestTemplate();
+		try {
+			if( metaDataUrl != null) {
+				metaURL = this.getAbsoluteUrl(metaDataUrl);
+				metaResponseEntity = restTemplate.getForEntity(metaURL.toString(), String.class);
+			}
+		}
+		catch (Exception e) {
+			throw new Exception("Request :"+metaURL+ ": is failed");
+		}
 		try(CloseableHttpClient	httpclient = this.getHttpClient()) {
 			URL url = this.getAbsoluteUrl(apiPath);
 			if (!requestData.isEmpty()) {
@@ -941,7 +1025,39 @@ public class QualysPCClient extends QualysBaseClient {
 						+ apiResponse.getResponseCode() + conRefuse);
 			}
 			if (response.getEntity() != null) {
-				apiResponse.setResponseXml(getDoc(response));
+				apiResponseString = getresponseString(response);
+				if( metaDataUrl != null) {
+					listener.getLogger().println("metaDataUrl " + metaDataUrl);
+					if (isDtd) {
+						listener.getLogger().println("isDtd: " + isDtd);
+						if (metaResponseEntity.getStatusCode() == HttpStatus.OK) {
+
+							String dtdContentInMemory = metaResponseEntity.getBody();
+							// Create an XMLReader
+							XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+
+							// Set the DTD handler to validate the document
+							xmlReader.setFeature("http://xml.org/sax/features/validation", true);
+							xmlReader.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader(dtdContentInMemory)));
+
+							// Set a content handler to handle parsing (in this case, we're not doing anything with it)
+							xmlReader.setContentHandler(new DefaultHandler());
+
+							// Parse the XML
+							xmlReader.parse(new InputSource(new StringReader(apiResponseString)));
+
+							System.out.println("XML is valid against DTD.");
+						}
+
+					} else {
+						SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+						Schema schema = schemaFactory.newSchema(new StreamSource(metaResponseEntity.getBody()));
+						Validator validator = schema.newValidator();
+						validator.validate(new StreamSource(apiResponseString));
+					}
+				}
+				apiResponse.setResponseXml(getDoc(apiResponseString));
+				listener.getLogger().println("getDoc completed");
 			} // End of If
 		} catch (JsonParseException je) {
 			apiResponse.setErrored(true);
@@ -1005,7 +1121,7 @@ public class QualysPCClient extends QualysBaseClient {
 		try {
 			while (retry < 3) {
 				logger.info("Retrying " + apiTypeName + " API call: " + retry);
-				resp = this.get(this.apiMap.get(api), false);
+				resp = this.get(this.apiMap.get(api), false,this.dtdMap.get(api),true);
 				logger.info("Response code received while getting the " + apiTypeName + " API call:"
 						+ resp.getResponseCode());
 
@@ -1122,11 +1238,9 @@ public class QualysPCClient extends QualysBaseClient {
 		}
 	}// End of getTextValueOfXml String
 
-	private Document getDoc(CloseableHttpResponse response) throws Exception {
-		String apiResponseString = "";
+	private Document getDoc(String apiResponseString) throws Exception {
 		Document doc = null;
 		try {
-			apiResponseString = getresponseString(response);
 			if (!apiResponseString.contains("<?xml")) {
 				throw new APIResponseException("apiResponseString is not proper XML.");
 			}
