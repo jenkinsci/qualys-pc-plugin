@@ -120,28 +120,20 @@ public class QualysPCClient extends QualysBaseClient {
 	} // End of populateApiMap method
 	private void populateApiDtd() {
 		this.dtdMap = new HashMap<>();
-		// Ref - https://www.qualys.com/docs/qualys-api-vmpc-user-guide.pdf
 		this.dtdMap.put("aboutDotPhp", "/about.dtd");
-		this.dtdMap.put("optionProfilesPc", "/api/2.0/fo/subscription/option_profile/option_profile_info.dtd"); //
-		this.dtdMap.put("scannerName", "/api/2.0/fo/appliance/appliance_list_output.dtd"); // [GET]]
-		this.dtdMap.put("OPTION_PROFILES", "/api/2.0/fo/subscription/option_profile/option_profile_info.dtd"); // [GET]
-		this.dtdMap.put("SIMPLE_RETURN", "/api/2.0/simple_return.dtd"); // [POST]
-		this.dtdMap.put("pCScansList", "/api/2.0/fo/scan/compliance/compliance_scan_result_output.dtd"); // [POST]
+		this.dtdMap.put("optionProfilesPc", "/api/2.0/fo/subscription/option_profile/option_profile_info.dtd");
+		this.dtdMap.put("scannerName", "/api/2.0/fo/appliance/appliance_list_output.dtd");
+		this.dtdMap.put("pCScansList", "/api/2.0/fo/scan/compliance/compliance_scan_result_output.dtd");
 		this.dtdMap.put("getConnector", "/qps/xsd/2.0/am/aws_asset_data_connector.xsd");
 		this.dtdMap.put("getInstanceState", "/qps/xsd/2.0/am/hostasset.xsd");
-		this.dtdMap.put("getReportResult", "/api/2.0/fo/compliance/posture/info/posture_info_list_output.dtd"); // [POST]
-		this.dtdMap.put("SCAN_LIST_OUTPUT", "https://qualysapi.qg2.apps.qualys.eu/api/2.0/fo/scan/scan_list_output.dtd"); /// [GET][POST]
-		this.dtdMap.put("addHost", "/api/2.0/fo/asset/ip/ip_list_output.dtd"); // [POST]
-		this.dtdMap.put("AUTH_WINDOWS_LIST_OUTPUT", "/api/2.0/fo/auth/windows/dtd/auth_list_output.dtd"); // [POST]
-		this.dtdMap.put("listWindowsAuthRecord", "/api/2.0/fo/auth/windows/batch_return.dtd"); // [POST]
-		this.dtdMap.put("listUnixAuthRecord", "/api/2.0/fo/auth/unix/dtd/auth_list_output.dtd"); // [POST]
-		this.dtdMap.put("BATCH_RETURN", "/api/2.0/batch_return.dtd"); // [POST]
-		this.dtdMap.put("listAssetGroup", "/api/2.0/fo/asset/group/asset_group_list_output.dtd"); // [POST]
-		this.dtdMap.put("updatePolicies", "/api/2.0/fo/compliance/policy/policy_list_output.dtd"); // [POST]
-		this.dtdMap.put("POLICY_EXPORT_OUTPUT", "/api/2/fo/compliance/policy/policy_export_output.dtd"); // [POST]
-		this.dtdMap.put("POLICY_MERGE_RESULT_OUTPUT", "/api/2.0/fo/compliance/policy/policy_merge_result_output.dtd"); // [POST]
+		this.dtdMap.put("getReportResult", "/api/2.0/fo/compliance/posture/info/posture_info_list_output.dtd");
+		this.dtdMap.put("addHost", "/api/2.0/fo/asset/ip/ip_list_output.dtd");
+		this.dtdMap.put("listWindowsAuthRecord", "/api/2.0/fo/auth/windows/batch_return.dtd");
+		this.dtdMap.put("listUnixAuthRecord", "/api/2.0/fo/auth/unix/dtd/auth_list_output.dtd");
+		this.dtdMap.put("listAssetGroup", "/api/2.0/fo/asset/group/asset_group_list_output.dtd");
+		this.dtdMap.put("updatePolicies", "/api/2.0/fo/compliance/policy/policy_list_output.dtd");
 
-	} // End of populateApiMap method
+	} // End of populateDTDMap method
 
 	/* API calling methods */
 
@@ -1027,9 +1019,7 @@ public class QualysPCClient extends QualysBaseClient {
 			if (response.getEntity() != null) {
 				apiResponseString = getresponseString(response);
 				if( metaDataUrl != null) {
-					listener.getLogger().println("metaDataUrl " + metaDataUrl);
 					if (isDtd) {
-						listener.getLogger().println("isDtd: " + isDtd);
 						if (metaResponseEntity.getStatusCode() == HttpStatus.OK) {
 
 							String dtdContentInMemory = metaResponseEntity.getBody();
@@ -1045,8 +1035,6 @@ public class QualysPCClient extends QualysBaseClient {
 
 							// Parse the XML
 							xmlReader.parse(new InputSource(new StringReader(apiResponseString)));
-
-							System.out.println("XML is valid against DTD.");
 						}
 
 					} else {
@@ -1057,7 +1045,6 @@ public class QualysPCClient extends QualysBaseClient {
 					}
 				}
 				apiResponse.setResponseXml(getDoc(apiResponseString));
-				listener.getLogger().println("getDoc completed");
 			} // End of If
 		} catch (JsonParseException je) {
 			apiResponse.setErrored(true);
