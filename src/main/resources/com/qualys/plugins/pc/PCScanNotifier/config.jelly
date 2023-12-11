@@ -302,7 +302,7 @@
         }
 
 
-        }; // End of docReady
+        } // End of docReady
 
         function excludeOptionChanged(){
         document.getElementsByName("excludeList")[0].value = "";
