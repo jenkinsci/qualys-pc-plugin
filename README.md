@@ -74,3 +74,10 @@ When the plugin step runs,
 4. Update all selected policies with newly created/updated asset group.
 5. Launch a scan on the configured Host or cloud instance with the configured scan options.
 6. If you have configured any pass/fail criteria, the plugin evaluates the response against that. If any of the build failure criteria matches, it will fail the build. Otherwise, your build job proceeds to next step (if any).
+
+### Release Notes for v1.0.6
+In v1.0.6, Policy Selection box does not populate any policies on Pipeline Snippet generator (PFB), however, when clicked on 'Generate Pipeline Script', script is generated with all the policies under selected Option Profile
+Hotfix for this issue will be released in v1.0.7 in January 2024.
+<img width="665" alt="option profile" src="https://github.com/jenkinsci/qualys-pc-plugin/assets/143092348/2a154777-1b0a-41b1-9ce2-7ee15652b171">
+
+
