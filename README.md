@@ -80,6 +80,7 @@ When the plugin step runs,
   with all the policies under selected Option Profile correctly.
 * Hotfix for this issue will be released in v1.0.7 in January 2024.
   
-<img width="665" alt="option profile" src="https://github.com/jenkinsci/qualys-pc-plugin/assets/143092348/2a154777-1b0a-41b1-9ce2-7ee15652b171">
+<img width="613" alt="option profile" src="https://github.com/jenkinsci/qualys-pc-plugin/assets/143092348/118891ad-a4ab-4393-99a7-5216f5f4d7af">
+
 
 
