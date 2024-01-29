@@ -15,7 +15,7 @@
 	<properties>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have 
 			this version or newer to run. -->
-		<jenkins.version>2.424</jenkins.version>
+		<jenkins.version>2.426.2</jenkins.version>
 		<java.version>11</java.version>
 		<java.level>11</java.level>
 		<!-- Other properties you may want to use: ~ jenkins-test-harness.version: 
