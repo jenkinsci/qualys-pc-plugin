@@ -10,7 +10,7 @@
 
 	<groupId>com.qualys.plugins</groupId>
 	<artifactId>qualys-pc</artifactId>
-	<version>1.0.6-SNAPSHOT</version>
+	<version>1.0.7-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 	<properties>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have 
