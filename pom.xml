@@ -82,6 +82,18 @@
 		</pluginRepository>
 	</pluginRepositories>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.jenkins.tools.bom</groupId>
+				<artifactId>bom-2.414.x</artifactId>
+				<version>2779.v391653d9c5da_</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins.workflow</groupId>
@@ -122,13 +134,6 @@
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-xml</artifactId>
 			<version>2.12.5</version> <!-- Use the latest version available -->
-		</dependency>
-		<dependency>
-		      <groupId>io.jenkins.tools.bom</groupId>
-		      <artifactId>bom-2.414.x</artifactId>
-		      <version>2779.v391653d9c5da_</version>
-		      <scope>import</scope>
-		      <type>pom</type>
 		</dependency>
 
 	</dependencies>
