@@ -116,6 +116,7 @@
         document.load = docReady;   //for pipeline
 
         function docReady() {
+        optionPlatformOnChange();
         document.getElementsByName("_.credsId")[0].style.width = "50%";
         document.getElementsByName("_.proxyCredentialsId")[0].style.width = "50%";
         //document.getElementsByName("failByStateAndCriticality")[0].checked = true;
@@ -150,52 +151,6 @@
         document.getElementById("selectedPolicies").value = selectedPolicy;
 
         }
-        var policyCount = 0;
-        function updatePolicyTable(){
-        var i;
-        var selectedPolicy = "";
-
-        for (i = policyCount - 1; i >= 0; i--) {
-        if (document.getElementById("policy_"+i.toString()).checked == true) {
-        selectedPolicy += document.getElementById("policy_"+i.toString()).name + ",,";
-        }
-
-        }
-        if (selectedPolicy.length > 0) {
-        selectedPolicy = selectedPolicy.substring(0, selectedPolicy.length - 2);
-        }
-        document.getElementById("selectedPolicies").value = selectedPolicy;
-
-        }
-
-        function updatePoliciesList() {
-        let optionProfileData = document.getElementById("optionProfile");
-        let optionProfileJson = JSON.parse(optionProfileData.value);
-        let policiesJson = optionProfileJson["policyDetails"];
-        var selectedPolicy = "";
-
-        var i;
-        var policyTable = document.getElementById("policyTable");
-        document.getElementById("policyTable").innerHTML = '';
-        policyCount = 0;
-
-        for (i in policiesJson) {
-        selectedPolicy += policiesJson[i] + "::" + i + ",,";
-
-        var row = policyTable.insertRow(0);
-        var pName = policiesJson[i] + "::" + i;
-        let encodedPolicyName = DOMPurify.escape(pName);
-        row.innerHTML = '<input type="checkbox" name="'+  DOMPurify.sanitize(encodedPolicyName) +'"  id="policy_' + policyCount.toString() + '">' + DOMPurify.sanitize(DOMPurify.escape(i)) + '</input>';
-
-        //      row.innerHTML = '<input type="checkbox" name="'+ pName +'" id="policy_'+ policyCount.toString() +'"> '+i +'</input>';
-        document.getElementById("policy_"+policyCount.toString()).checked = true;
-        policyCount++;
-
-        }
-        selectedPolicy = selectedPolicy.substring(0, selectedPolicy.length - 2);
-        document.getElementById("selectedPolicies").value = selectedPolicy;
-        }
-
 
         function configClicked(){
         if(this.attributes.id.value == checkbx2.attributes.id.value){
@@ -260,7 +215,7 @@
         var row = policyTable.insertRow(0);
         var pName = policiesJson[i] + "::" + i;
         let encodedPolicyName = DOMPurify.escape(pName);
-        row.innerHTML = '<input type="checkbox" name="'+  DOMPurify.sanitize(encodedPolicyName) +'"  id="policy_' + policyCount.toString() + '">' + DOMPurify.sanitize(DOMPurify.escape(i)) + '</input>';
+        row.innerHTML = '<input type="checkbox" name="'+  DOMPurify.sanitize(encodedPolicyName) +'"  id="policy_' + policyCount.toString() + '" onChange="updatePolicyTable()">' + DOMPurify.sanitize(DOMPurify.escape(i)) + '</input>';
         //   row.innerHTML = '<input type="checkbox" name="'+ pName +'" id="policy_'+ policyCount.toString() +'"> '+i +'</input>';
 
         //document.getElementById("policy_"+policyCount.toString()).selected = false;
@@ -278,31 +233,67 @@
         }
         }
 
+        } // End of docReady
 
-        var apiServerTr = document.getElementsByName("_.apiServer")[0].parentNode.parentNode;
+        function optionPlatformOnChange(){
+        var apiServerTr = document.getElementsByName("_.apiServer")[0].parentNode.parentNode.parentNode;
 
         apiServerTr.style.display = 'none';
-        //apiServerTr.next('tr').style.display = 'none';
 
-        document.getElementById("platform").onchange = function(){
-        if(this.value === "PCP"){
-        apiServerTr.style.display = 'table-row';
-        //apiServerTr.previous('tr').style.display = 'table-row';
-        //apiServerTr.next('tr').style.display = 'table-row';
+        if(document.getElementById("platform").value === "PCP"){
+        apiServerTr.style.display = 'block';
         }else{
         apiServerTr.style.display = 'none';
-        //apiServerTr.previous('tr').style.display = 'none';
-        //apiServerTr.next('tr').style.display = 'none';
+
         }
         }
 
-        if(document.getElementById("platform").value == "PCP"){
-        apiServerTr.style.display = 'table-row';
-        apiServerTr.next().style.display='table-row';
+        var policyCount = 0;
+        function updatePolicyTable(){
+        var i;
+        var selectedPolicy = "";
+
+        for (i = policyCount - 1; i >= 0; i--) {
+        if (document.getElementById("policy_"+i.toString()).checked == true) {
+        selectedPolicy += document.getElementById("policy_"+i.toString()).name + ",,";
         }
 
+        }
+        if (selectedPolicy.length > 0) {
+        selectedPolicy = selectedPolicy.substring(0, selectedPolicy.length - 2);
+        }
+        document.getElementById("selectedPolicies").value = selectedPolicy;
 
-        } // End of docReady
+        }
+
+        function updatePoliciesList() {
+        let optionProfileData = document.getElementById("optionProfile");
+        let optionProfileJson = JSON.parse(optionProfileData.value);
+        let policiesJson = optionProfileJson["policyDetails"];
+        var selectedPolicy = "";
+
+        var i;
+        var policyTable = document.getElementById("policyTable");
+        document.getElementById("policyTable").innerHTML = '';
+        policyCount = 0;
+
+        for (i in policiesJson) {
+        selectedPolicy += policiesJson[i] + "::" + i + ",,";
+
+        var row = policyTable.insertRow(0);
+        var pName = policiesJson[i] + "::" + i;
+        let encodedPolicyName = DOMPurify.escape(pName);
+        row.innerHTML = '<input type="checkbox" name="'+  DOMPurify.sanitize(encodedPolicyName) +'"  id="policy_' + policyCount.toString() + '" onChange="updatePolicyTable()">' + DOMPurify.sanitize(DOMPurify.escape(i)) + '</input>';
+
+        //      row.innerHTML = '<input type="checkbox" name="'+ pName +'" id="policy_'+ policyCount.toString() +'"> '+i +'</input>';
+        document.getElementById("policy_"+policyCount.toString()).checked = true;
+        policyCount++;
+
+        }
+        selectedPolicy = selectedPolicy.substring(0, selectedPolicy.length - 2);
+        document.getElementById("selectedPolicies").value = selectedPolicy;
+        }
+
 
         function excludeOptionChanged(){
         document.getElementsByName("excludeList")[0].value = "";
@@ -325,13 +316,15 @@
     <f:section title="API Login">
         <f:block> <div> &#160; &#160; Provide details for accessing the Qualys Policy Compliance(PC) API.  </div> <br /> </f:block>
         <f:entry title="Your Qualys Portal:" field="platform" help="/plugin/qualys-pc/help/platform.html">
-            <f:select name="platform" style="width: 50%;" id="platform" />
+            <f:select name="platform" style="width: 50%;" id="platform" onChange="optionPlatformOnChange()"/>
         </f:entry>
 
         <f:block >
+            <div id="apiServerDiv" style="display:none">
             <f:entry field="apiServer" title="API Server URL:" help="/plugin/qualys-pc/help/apiServer.html">
                 <f:textbox  style="width: 50%;" id="apiServer" />
             </f:entry>
+            </div>
         </f:block >
 
         <f:entry field="credsId" title="* ${%Credentials:}" help="/plugin/qualys-pc/help/credentialsId.html">
@@ -423,7 +416,7 @@
             </f:block>
             <f:block>
                 <f:entry title="* Option Profile:" field="optionProfile" name="optionProfile" help="/plugin/qualys-pc/help/optionProfile.html">
-                    <f:select id="optionProfile" fillDependsOn="apiServer credsId" style="width: 100%; min-width: 100%;" />
+                    <f:select id="optionProfile" fillDependsOn="apiServer credsId" style="width: 100%; min-width: 100%;" onChange="updatePoliciesList()"/>
                 </f:entry>
             </f:block>
 

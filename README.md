@@ -65,7 +65,7 @@ In the Timeout settings, specify the polling frequency in minutes for collecting
 
 If you are configuring pipeline project, click the `Generate Pipeline Script` button/link. It will give you a command which you can copy and paste in your project's pipeline script. 
 
-## How this plugin works
+## How this plugin works -
 
 When the plugin step runs, 
 1. Plugin first adds input host IP Address into Qualys user Account. In case of EC2 instance plugin will first fetch private IP address of instance and then add it into user account.
