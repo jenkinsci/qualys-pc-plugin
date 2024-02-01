@@ -65,7 +65,7 @@ In the Timeout settings, specify the polling frequency in minutes for collecting
 
 If you are configuring pipeline project, click the `Generate Pipeline Script` button/link. It will give you a command which you can copy and paste in your project's pipeline script. 
 
-## How this plugin works -
+## How this plugin works
 
 When the plugin step runs, 
 1. Plugin first adds input host IP Address into Qualys user Account. In case of EC2 instance plugin will first fetch private IP address of instance and then add it into user account.
@@ -75,12 +75,8 @@ When the plugin step runs,
 5. Launch a scan on the configured Host or cloud instance with the configured scan options.
 6. If you have configured any pass/fail criteria, the plugin evaluates the response against that. If any of the build failure criteria matches, it will fail the build. Otherwise, your build job proceeds to next step (if any).
 
-### Known Issues
-* In v1.0.6, Policy Selection box may not populate policies on Pipeline Snippet generator (PFB), however, when clicked on 'Generate Pipeline Script', script is generated 
-  with all the policies under selected Option Profile correctly.
-* Hotfix for this issue will be released in v1.0.7 in February 2024.
+### Known Issues in v1.0.6
+* Fixed known issues from v1.0.6 wherein Policy Selection box was not populating policies for selected Option Profile.
+* Minimum supported Jenkins verison is updated to 2.426.2 to fix the issues related to loading of 'Qualys Policy Compliance Scanning Connector' fields.
   
-<img width="613" alt="option profile" src="https://github.com/jenkinsci/qualys-pc-plugin/assets/143092348/118891ad-a4ab-4393-99a7-5216f5f4d7af">
-
-
 
