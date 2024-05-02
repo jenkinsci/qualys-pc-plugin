@@ -556,7 +556,7 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 			return FormValidation.ok();
 		}
 
-		private static final String URL_REGEX = "^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+		private static final String URL_REGEX = "^(https)://qualysapi\\.[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 		private static final String PROXY_REGEX = "^((https?)://)?[-a-zA-Z0-9+&@#/%?=~_|!,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 		private static final String TIMEOUT_PERIOD_REGEX = "^(\\d+[*]?)*(?<!\\*)$";
 		private static final String HOST_IP = "^\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b";
@@ -591,7 +591,7 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 				Matcher matcher = patt.matcher(server);
 
 				if (!(matcher.matches())) {
-					return FormValidation.error("Server name is not valid!");
+					return FormValidation.error("Server name is not valid! Please use the correct format, refer- https://www.qualys.com/platform-identification/" );
 				} else {
 					return FormValidation.ok();
 				}
@@ -866,24 +866,29 @@ public class PCScanNotifier extends Notifier implements SimpleBuildStep {
 				@AncestorInPath Item item) {
 			item.checkPermission(Item.CONFIGURE);
 			try {
-				int proxyPortInt = (doCheckProxyPort(proxyPort) == FormValidation.ok()) ? Integer.parseInt(proxyPort)
-						: 80;
-				String server = apiServer != null ? apiServer.trim() : "";
-				if (!platform.equalsIgnoreCase("pcp")) {
-					Map<String, String> platformObj = Helper.platformsList.get(platform);
-					server = platformObj.get("url");
+				if (doCheckApiServer(apiServer) != FormValidation.ok() && platform.equalsIgnoreCase("pcp")) {
+					return FormValidation.error("Connection test failed.");
+				}
+				else  {
+					int proxyPortInt = (doCheckProxyPort(proxyPort) == FormValidation.ok()) ? Integer.parseInt(proxyPort)
+							: 80;
+					String server = apiServer != null ? apiServer.trim() : "";
+					if (!platform.equalsIgnoreCase("pcp")) {
+						Map<String, String> platformObj = Helper.platformsList.get(platform);
+						server = platformObj.get("url");
+					}
 					logger.info("Using qualys API Server URL: " + server);
-				}
-				QualysPCClient client = h.getClient(useProxy, server, credsId, proxyServer, proxyPortInt,
-						proxyCredentialsId, item);
+					QualysPCClient client = h.getClient(useProxy, server, credsId, proxyServer, proxyPortInt,
+							proxyCredentialsId, item);
 
-				if (platform.equalsIgnoreCase("pcp")) {
-					client.testConnection();
-				} else {
-					client.testConnectionUsingGatewayAPI();
-				}
+					if (platform.equalsIgnoreCase("pcp")) {
+						client.testConnection();
+					} else {
+						client.testConnectionUsingGatewayAPI();
+					}
 
-				return FormValidation.ok("Connection test successful!");
+					return FormValidation.ok("Connection test successful!");
+				}
 
 			} catch (Exception e) {
 				return FormValidation.error("Connection test failed. (Reason: " + e.getMessage() + ")");
