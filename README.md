@@ -75,7 +75,7 @@ When the plugin step runs,
 5. Launch a scan on the configured Host or cloud instance with the configured scan options.
 6. If you have configured any pass/fail criteria, the plugin evaluates the response against that. If any of the build failure criteria matches, it will fail the build. Otherwise, your build job proceeds to next step (if any).
 
-### Known Issues in v1.0.6
+### Known Issues in v1.0.6-
 * Fixed known issues from v1.0.6 wherein Policy Selection box was not populating policies for selected Option Profile.
 * Minimum supported Jenkins verison is updated to 2.426.2 to fix the issues related to loading of 'Qualys Policy Compliance Scanning Connector' fields.
   
