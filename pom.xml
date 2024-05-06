@@ -10,7 +10,7 @@
 
 	<groupId>com.qualys.plugins</groupId>
 	<artifactId>qualys-pc</artifactId>
-	<version>1.0.8-SNAPSHOT</version>
+	<version>1.0.8</version>
 	<packaging>hpi</packaging>
 	<properties>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have 
@@ -130,7 +130,7 @@
 	    <connection>scm:git:ssh://github.com/jenkinsci/qualys-pc-plugin.git</connection>
 	    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/qualys-pc-plugin.git</developerConnection>
 	    <url>https://github.com/jenkinsci/qualys-pc-plugin</url>
-   	    <tag>HEAD</tag>
+   	    <tag>qualys-pc-1.0.8</tag>
  	 </scm>
 	
 	<organization>
